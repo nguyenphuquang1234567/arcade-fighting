@@ -49,7 +49,10 @@ for char in ['moon','ember']:
       if frame in (4,5) and u>hx+15 and v<hy+47:include=False
       if frame in (0,1) and ((v<hy-21) or (u>hx+17 and v<hy+18)):include=False
      if not include:continue
-     label=1 if head<=1 and v<hy+13 else 3 if legs<torso and v>hy+25 else 2
+     label=1 if head<=1 and v<hy+13 else 3 if legs<torso and v>hy+13 else 2
+     # No arm hurtboxes on this branch: retain the central torso,
+     # head and legs, instead of the wide arm inclusion seed.
+     if label==2 and torso>16:continue
      labels[y*512+x]=label
    runs=[]
    for y in range(512):

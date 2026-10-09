@@ -25,7 +25,7 @@ Press H or click H / HITBOXES to show green body hurtboxes and red active attack
 
 ## Pixel hurtbox masks
 
-Current branch: `feat/polygon-hurtboxes`. The original rectangular game remains on `main`. Collision now tests per-frame occupied source pixels (row runs), using the same 512px frame, scale, facing and pose clock as rendering. There are 90 frame masks for Moon/Ember, including empty death masks. Running remains 5 FPS. Press **H** for yellow head, green body/arms, blue legs and red attack rectangles. Damage is unchanged across regions.
+Current branch: `feat/polygon-hurtboxes`. The original rectangular game remains on `main`. Collision now tests per-frame occupied source pixels (row runs), using the same 512px frame, scale, facing and pose clock as rendering. There are 90 frame masks for Moon/Ember, including empty death masks. Running remains 5 FPS. Press **H** for yellow head, green torso, blue legs and red attack rectangles. Damage is unchanged across regions.
 
 Masks are derived from sprite alpha plus anatomical inclusion seeds. Every selected pixel has nonzero source alpha, so the selected silhouette aligns exactly. **Semantic selection is still an approximation**: some clothing/hair/hand pixels or pixels adjacent to a sword can need manual correction. The seed masks are not a claim of fully reviewed, 100% anatomical segmentation.
 
@@ -36,3 +36,7 @@ Open **MASK EDITOR** or `/mask-editor.html` to select a character/action/frame, 
 ### Matched idle poses
 
 Ronin remains the reference for idle. Ember now uses `idle-ronin.png`: two lowered-arm standing frames with Ronin's stance, keeping Ember's orange/red appearance. Both use 3 FPS with the same pose clock and 492px foot baseline. The old Ember `idle.png` remains available. Ember idle mask overrides use a new `idle-ronin` key to avoid applying old pose masks to the replacement artwork.
+
+### Branch experiment: no arm hurtboxes
+
+On `feat/polygon-hurtboxes`, the wide body/arm inclusion is clipped to the central torso. Extended punching arms are no longer hurtboxes; attack hitboxes remain active. Head and leg masks are retained, including raised kicking legs. Anatomical separation remains seed-based near the shoulder/torso boundary. The branch uses separate browser override storage (`dojo-hurtmask-overrides-no-arms`) so old arm-inclusive overrides from `main` cannot replace these masks. Manual editor painting can still expand a mask intentionally.
