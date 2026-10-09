@@ -9,8 +9,8 @@ export class Combat{
  resetFighters(){this.fighters=[360,920].map((x,i)=>({character:i===0?'moon':'ember',x,y:0,vy:0,hp:100,energy:100,face:i===0?1:-1,action:'idle',time:0,duration:0,hit:false,guard:false,wins:this.fighters[i]?.wins||0}));this.remaining=60;}
  start(training=false){this.training=training;this.fighters=[];this.round=1;this.resetFighters();this.phase='fight'}
  update(dt:number,inputs:Input[]){if(this.phase==='roundover'){this.delay-=dt;if(this.delay<=0){this.round++;this.resetFighters();this.phase='fight'}return}if(this.phase!=='fight')return;if(!this.training)this.remaining=Math.max(0,this.remaining-dt);
- this.fighters.forEach((f,i)=>{const input=inputs[i],enemy=this.fighters[1-i];f.time+=dt;f.energy=Math.min(100,f.energy+dt*13);if(f.action!=='death'&&f.duration>0&&f.time>=f.duration){f.action='idle';f.duration=0;f.time=0}if(f.duration===0)f.face=enemy.x>=f.x?1:-1;f.guard=input.guard&&f.y===0&&f.duration===0;
- if(f.duration===0){if(input.jump&&f.y===0){f.vy=-780;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attacks[input.attack]!;if(f.energy>=a.cost){f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
+ this.fighters.forEach((f,i)=>{const input=inputs[i],enemy=this.fighters[1-i];f.time+=dt;f.energy=this.training?100:Math.min(100,f.energy+dt*13);if(f.action!=='death'&&f.duration>0&&f.time>=f.duration){f.action='idle';f.duration=0;f.time=0}if(f.duration===0)f.face=enemy.x>=f.x?1:-1;f.guard=input.guard&&f.y===0&&f.duration===0;
+ if(f.duration===0){if(input.jump&&f.y===0){f.vy=-780;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attacks[input.attack]!;if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
  if(f.duration===0){f.x+=input.move*(f.guard?90:290)*dt;const next=f.y<0||f.vy<0?'jump':input.move?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
  if(f.action==='ground_slide')f.x+=f.face*360*dt;
  f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;f.x=Math.max(90,Math.min(1190,f.x));
@@ -27,7 +27,7 @@ export class Combat{
  for(const {f,enemy,attack,contact,blocked,direction} of contacts){
    f.hit=true;
    if(!this.training)enemy.hp=Math.max(0,enemy.hp-(blocked?attack.damage*.18:attack.damage));
-   if(blocked)enemy.energy-=10;
+   if(blocked&&!this.training)enemy.energy-=10;
    else{enemy.action=enemy.hp<=0?'death':'hurt';enemy.duration=enemy.hp<=0?10:.28;enemy.time=0;enemy.hit=true;}
    enemy.x=Math.max(90,Math.min(1190,enemy.x+direction*(blocked?12:32)));
    this.onHit?.(contact.x+contact.width/2,contact.y+contact.height/2,blocked,f.action);
