@@ -1,4 +1,4 @@
-import { maskCollision, getHitboxes } from './geometry';
+import { polygonCollision, getHitboxes } from './geometry';
 export type Action='idle'|'walk'|'run'|'jump'|'attack'|'kick'|'sword_attack'|'ground_slide'|'hurt'|'death';
 export type Input={move:number,jump:boolean,guard:boolean,attack?:Action};
 export type Fighter={character:'moon'|'ember',x:number,y:number,vy:number,hp:number,energy:number,face:number,action:Action,time:number,duration:number,hit:boolean,guard:boolean,wins:number};
@@ -20,7 +20,7 @@ export class Combat{
  const contacts=this.fighters.flatMap((f,i)=>{
    const enemy=this.fighters[1-i];
    if(f.hit||enemy.hp<=0)return [];
-   const contact=maskCollision(getHitboxes(f,attacks[f.action]),enemy,attacks[enemy.action]);
+   const contact=polygonCollision(getHitboxes(f,attacks[f.action]),enemy,attacks[enemy.action]);
    const attack=attacks[f.action];
    return contact&&attack?[{f,enemy,attack,contact,blocked:enemy.guard&&enemy.energy>=10,direction:f.face}]:[];
  });

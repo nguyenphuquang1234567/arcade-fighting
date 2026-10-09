@@ -27,7 +27,8 @@ class Dojo extends Phaser.Scene{
        const color={head:0xffd166,body:0x56e5c6,legs:0x77aaff}[polygon.region];
        graphics.fillStyle(color,.32).beginPath();
        polygon.points.forEach((p,i)=>i?graphics.lineTo(p.x,p.y):graphics.moveTo(p.x,p.y));
-       graphics.closePath().fillPath();
+       graphics.closePath();if(!polygon.holes?.length)graphics.fillPath();graphics.lineStyle(1.5,color,.9).strokePath();
+       for(const hole of polygon.holes??[]){graphics.beginPath();hole.forEach((p,i)=>i?graphics.lineTo(p.x,p.y):graphics.moveTo(p.x,p.y));graphics.closePath().strokePath();}
      }
      for(const b of getHitboxes(fighter,timing))graphics.fillStyle(0xff625c,.25).lineStyle(2,0xff625c,1).fillRect(b.x,b.y,b.width,b.height).strokeRect(b.x,b.y,b.width,b.height);
    }

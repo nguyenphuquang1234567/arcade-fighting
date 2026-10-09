@@ -40,3 +40,18 @@ Ronin remains the reference for idle. Ember now uses `idle-ronin.png`: two lower
 ### Branch experiment: no arm hurtboxes
 
 On `feat/polygon-hurtboxes`, the wide body/arm inclusion is clipped to the central torso. Extended punching arms are no longer hurtboxes; attack hitboxes remain active. Head and leg masks are retained, including raised kicking legs. Anatomical separation remains seed-based near the shoulder/torso boundary. The branch uses separate browser override storage (`dojo-hurtmask-overrides-no-arms`) so old arm-inclusive overrides from `main` cannot replace these masks. Manual editor painting can still expand a mask intentionally.
+
+## Editable polygon branch
+
+Branch `feat/editable-polygon-hurtboxes` switches runtime collision from source-pixel row masks to editable per-frame polygons. It starts from the masks on `feat/polygon-hurtboxes`; previous branches and mask files are preserved. Contours are simplified and tiny islands discarded, so polygons approximate the original pixel boundary. Holes and concave stance gaps remain excluded from collision.
+
+Open `/polygon-editor.html` or **POLYGON EDITOR** in the game. Choose a character, action and frame, then a polygon and outer/hole ring. Drag a white vertex; double-click an edge to insert a vertex; Alt/Option-click a vertex to delete it. Add/delete polygons, assign head/body/legs, undo, reset to seed polygons, and copy the preceding frame. Invalid geometry cannot be saved.
+
+- **Lưu trình duyệt** stores edits in `dojo-polygon-overrides-v1` and updates other game tabs at the same origin.
+- **Lưu mã nguồn (dev)** also writes edits to `src/polygon-overrides.json` through a same-origin, loopback-only Vite development endpoint. This is disabled in production. Builds include these source edits; Git still needs commit/push separately.
+- **Xuất/Nhập JSON** provides backups and transfer. Import accepts old mask JSON and converts it to polygon contours.
+- **Chuyển mask đã lưu** converts existing mask edits saved in this browser; then choose a save action to apply them. It does not erase the old mask data.
+
+Runtime precedence: browser polygon edits, source polygon edits, generated seed polygons. Frame edits are independent unless copied. Empty polygon lists intentionally remove hurtboxes from a frame. Death remains non-hittable.
+
+`python3 scripts/build-polygons.py` regenerates seed polygons in `src/hurtpolygons.json` from committed masks and does not modify source/browser overrides. `npm test` verifies combat, mirroring, polygon holes, invalid edits and all seeded contours.
