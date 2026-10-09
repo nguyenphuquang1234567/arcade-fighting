@@ -47,7 +47,15 @@ function quitMatch(){
 }
 $('quit-match').onclick=quitMatch;
 $('boxes').onclick=toggleBoxes;
-document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(button=>button.onclick=()=>{mode=button.dataset.mode!;$('p2-controls').hidden=mode!=='local';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b===button));$('p2-help').textContent=mode==='local'?'P2: Arrows move / guard · 1 / 2 / 3 / 0 attacks':'Keep your stamina. A patient fighter survives.'});
+function updateMenuHelp(){
+ $('menu-p1').innerHTML='<strong>P1 · RONIN</strong>'+document.querySelector('.fighter:not(.right) .hud-controls')!.innerHTML;
+ $('menu-p2').innerHTML='<strong>P2 · EMBER</strong>'+$('p2-controls').innerHTML;
+ $('menu-p2').hidden=mode!=='local';
+ $('mode-description').textContent=mode==='training'?'Training / Luyện tập với bot: vô hạn máu, năng lượng và thời gian.':mode==='local'?'Local / Hai người cùng bàn phím: P1 điều khiển Ronin, P2 điều khiển Ember.':'VS Computer / Đấu với bot: anh điều khiển Ronin bằng bộ phím P1.';
+ $('mode-rules').textContent=mode==='training'?'INFINITE HEALTH · ENERGY · TIME / VÔ HẠN MÁU · NĂNG LƯỢNG · THỜI GIAN':'FIRST TO TWO ROUNDS · 60 SECOND DUELS / THẮNG 2 ROUND · 60 GIÂY MỖI ROUND';
+}
+updateMenuHelp();
+document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(button=>button.onclick=()=>{mode=button.dataset.mode!;updateMenuHelp();$('p2-controls').hidden=mode!=='local';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b===button));$('p2-help').textContent=mode==='local'?'P2: Arrows move / guard · 1 / 2 / 3 / 0 attacks':'Keep your stamina. A patient fighter survives.'});
 $('start').onclick=()=>{if(!scene)return;keys.clear();pressed.clear();combat.start(mode==='training');paused=false;$('pause-menu').hidden=true;$('pause').textContent='ESC / PAUSE';$('overlay').classList.add('hidden');$('status').textContent=mode==='training'?'TRAINING · INFINITE HEALTH':mode==='bot'?'YOU VS EMBER AI':'LOCAL DUEL';if(sound&&!scene.music?.isPlaying)scene.music?.play()};
 $('sound').onclick=()=>{sound=!sound;$('sound').textContent=sound?'SOUND ON':'SOUND OFF';if(sound)scene?.music?.play();else scene?.music?.pause()};
 new Phaser.Game({type:Phaser.AUTO,parent:'game',width:1280,height:720,backgroundColor:'#251b2d',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:Dojo,render:{antialias:true}});
