@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import {Combat,bot,attacks,type Action,type Input} from './combat';
 import './style.css';
-import {getHitboxes, getHurtboxes, SPRITE_SCALE, SPRITE_BASELINE} from './geometry';
-import {fighters, actions, frameCounts, attackFrame} from './fighters';
+import {getHitboxes, getHurtboxes, SPRITE_SCALE, SPRITE_BASELINE, poseFrame} from './geometry';
+import {fighters, actions, frameCounts} from './fighters';
 const $=(id:string)=>document.getElementById(id)!;
 const combat=new Combat();let mode='bot',paused=false,sound=false,showBoxes=false,scene:Dojo;
 const keys=new Set<string>(),pressed=new Set<string>();
@@ -18,17 +18,22 @@ class Dojo extends Phaser.Scene{
  this.boxGraphics=this.add.graphics().setDepth(50);this.renderState();}
  tone(frequency:number){if(!sound)return;const context=(this.sound as Phaser.Sound.WebAudioSoundManager).context;if(!context)return;const oscillator=context.createOscillator(),gain=context.createGain();oscillator.type='triangle';oscillator.frequency.setValueAtTime(frequency,context.currentTime);oscillator.frequency.exponentialRampToValueAtTime(40,context.currentTime+.12);gain.gain.setValueAtTime(.12,context.currentTime);gain.gain.exponentialRampToValueAtTime(.001,context.currentTime+.15);oscillator.connect(gain);gain.connect(context.destination);oscillator.start();oscillator.stop(context.currentTime+.16)}
  update(time:number,delta:number){if(!paused)combat.update(Math.min(delta/1000,.035),[input(),mode==='bot'?bot(combat,time):input(true)]);pressed.clear();if(combat.phase==='fight'&&!paused)$('callout').textContent=combat.remaining>59?'FIGHT':'';this.renderState()}
- renderState(){combat.fighters.forEach((f,i)=>{const sprite=this.sprites[i];if(!sprite)return;sprite.setPosition(f.x,SPRITE_BASELINE+f.y).setFlipX(f.face<0);const animation=`${fighters[i].key}-${f.action}`;if(['attack','kick','sword_attack','ground_slide'].includes(f.action)){const timing=attacks[f.action]!;sprite.anims.stop();sprite.setTexture(animation,f.action==='ground_slide'?(f.time<timing.activeEnd?0:1):attackFrame(f.time,timing.active,timing.duration,frameCounts[f.action]));}else if(sprite.texture.key!==animation||sprite.anims.currentAnim?.key!==animation)sprite.play(animation);sprite.setTint(f.guard?0xb1dfff:0xffffff);this.shadows[i].setPosition(f.x,655).setAlpha(f.y<0?.2:.5);const prefix=i===0?'p':'r';$(`${prefix}-hp`).style.width=`${f.hp}%`;$(`${prefix}-energy`).style.width=`${f.energy}%`;$(`${prefix}-wins`).textContent=[0,1].map(n=>f.wins>n?'●':'○').join(' ')});this.drawBoxes();$('timer').textContent=String(Math.ceil(combat.remaining)).padStart(2,'0');$('round').textContent=`ROUND ${String(combat.round).padStart(2,'0')}`;}
+ renderState(){combat.fighters.forEach((f,i)=>{const sprite=this.sprites[i];if(!sprite)return;sprite.setPosition(f.x,SPRITE_BASELINE+f.y).setFlipX(f.face<0);const animation=`${fighters[i].key}-${f.action}`;sprite.anims.stop();sprite.setTexture(animation,poseFrame(f,attacks[f.action]));sprite.setTint(f.guard?0xb1dfff:0xffffff);this.shadows[i].setPosition(f.x,655).setAlpha(f.y<0?.2:.5);const prefix=i===0?'p':'r';$(`${prefix}-hp`).style.width=`${f.hp}%`;$(`${prefix}-energy`).style.width=`${f.energy}%`;$(`${prefix}-wins`).textContent=[0,1].map(n=>f.wins>n?'●':'○').join(' ')});this.drawBoxes();$('timer').textContent=String(Math.ceil(combat.remaining)).padStart(2,'0');$('round').textContent=`ROUND ${String(combat.round).padStart(2,'0')}`;}
  drawBoxes(){
    const graphics=this.boxGraphics;if(!graphics)return;graphics.clear();if(!showBoxes)return;
    for(const fighter of combat.fighters){
      const timing=attacks[fighter.action];
-     for(const b of getHurtboxes(fighter,timing))graphics.fillStyle(0x56e5c6,.12).lineStyle(2,0x56e5c6,.9).fillRect(b.x,b.y,b.width,b.height).strokeRect(b.x,b.y,b.width,b.height);
+     for(const polygon of getHurtboxes(fighter,timing)){
+       const color={head:0xffd166,body:0x56e5c6,legs:0x77aaff}[polygon.region];
+       graphics.fillStyle(color,.15).lineStyle(2,color,.95).beginPath();
+       polygon.points.forEach((p,i)=>i?graphics.lineTo(p.x,p.y):graphics.moveTo(p.x,p.y));
+       graphics.closePath().fillPath().strokePath();
+     }
      for(const b of getHitboxes(fighter,timing))graphics.fillStyle(0xff625c,.25).lineStyle(2,0xff625c,1).fillRect(b.x,b.y,b.width,b.height).strokeRect(b.x,b.y,b.width,b.height);
    }
  }
 }
-function toggleBoxes(){showBoxes=!showBoxes;$('boxes').textContent=showBoxes?'H / BOXES ON':'H / HITBOXES';$('boxes').setAttribute('aria-pressed',String(showBoxes));}
+function toggleBoxes(){showBoxes=!showBoxes;$('boxes').textContent=showBoxes?'H / HEAD · BODY · LEGS':'H / HITBOXES';$('boxes').setAttribute('aria-pressed',String(showBoxes));}
 function showMenu(title?:string){$('overlay').classList.remove('hidden');if(title){document.querySelector('h1')!.textContent=title;$('start').innerHTML='REMATCH <span>↗</span>'}$('status').textContent='AWAITING CHALLENGER';$('callout').textContent='';}
 function togglePause(){if(combat.phase!=='fight')return;paused=!paused;$('callout').textContent=paused?'PAUSED':'';$('pause').textContent=paused?'ESC / RESUME':'ESC / PAUSE'}
 $('pause').onclick=togglePause;

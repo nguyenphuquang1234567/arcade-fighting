@@ -22,3 +22,11 @@ Current sword attack: both existing fighters share a six-frame overhead-to-lunge
 Combat now uses sprite-space rectangular hitboxes and hurtboxes from `src/geometry.ts`, transformed with the same origin, 0.6 scale, facing and jump offset as the sprites. Body boxes change with stance; punch, kick, sword and slide have separate attack regions and active windows. Collision is checked throughout the active window and each attack can damage each opponent once. Contacts are resolved together so simultaneous strikes can trade. Slide's contact pose is held through its active window.
 
 Press H or click H / HITBOXES to show green body hurtboxes and red active attack hitboxes. `npm test` runs 20 combat checks covering directions, range, height, guard, recovery, posture, single-hit behavior and simultaneous attacks.
+
+## Polygon hurtboxes
+
+Branch `feat/polygon-hurtboxes` preserves the previous game on `main`. Both fighters now have per-frame anatomical polygon hurtboxes: head, torso, and separate thigh/shin/foot polygons for each leg. These are authored approximations of the sprite anatomy, not exact alpha contours. Weapons, sword trails, and decorative cloth are excluded. All rendered frames use the same pose clock as collision geometry; running remains 5 FPS.
+
+Press **H**: yellow = head, green = torso, blue = legs, red = active attack hitbox. Rectangle attacks are clipped against the actual hurt polygons; empty space inside a polygon bounding box does not count. Existing damage values remain unchanged for all regions.
+
+Validation: `npm test` covers attack windows, guard/trades, airborne/slide postures, polygon clipping and mirroring, and pose coverage for both fighters. `npm run build` checks TypeScript and production bundling.
