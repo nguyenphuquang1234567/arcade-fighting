@@ -4,7 +4,7 @@ import './style.css';
 import {getHitboxes, getHurtboxes, SPRITE_SCALE, SPRITE_BASELINE, poseFrame} from './geometry';
 import {fighters, actions, frameCounts, spriteFile} from './fighters';
 const $=(id:string)=>document.getElementById(id)!;
-const combat=new Combat();let mode='bot',paused=false,sound=false,showBoxes=false,scene:Dojo;
+const combat=new Combat();let mode='bot',paused=false,sound=true,showBoxes=false,scene:Dojo;
 const keys=new Set<string>(),pressed=new Set<string>();
 window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);if(e.code==='Escape'&&!e.repeat)togglePause();if(e.code==='KeyH'&&!e.repeat)toggleBoxes()});window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressed.clear();if(combat.phase==='fight'&&!paused)togglePause()});
 function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1]))-Number(keys.has(m[0])),jump:pressed.has(m[2]),guard:keys.has(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
