@@ -2,7 +2,7 @@ import saved from './capsule-overrides.json';
 import {hurtboxPoses} from './hurtbox-poses';
 import type {Action} from './combat';
 import type {CapsuleEdit,CapsuleEdits} from './capsule-model';
-import type {HurtPolygon} from './polygon-model';
+import type {HurtPolygon} from './collision-types';
 export function capsulePolygon(character:'moon'|'ember',action:Action,frame:number,edit:CapsuleEdit):HurtPolygon{
  const p=hurtboxPoses[character][action][frame].map(v=>v*3.2),r=edit.width/2;
  let x1=p[2],y1=p[1]+65,x2=p[2],y2=Math.max(p[7],p[11])-r;

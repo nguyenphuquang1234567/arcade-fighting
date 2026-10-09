@@ -1,8 +1,8 @@
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts } from './fighters';
 import { capsulesFor } from './hurtcapsule';
-import type {Point,BodyRegion,HurtPolygon} from './polygon-model';
-export type {Point,BodyRegion,HurtPolygon} from './polygon-model';
+import type {Point,BodyRegion,HurtPolygon} from './collision-types';
+export type {Point,BodyRegion,HurtPolygon} from './collision-types';
 
 export type Box = { x: number; y: number; width: number; height: number };
 export type Strike = 'attack' | 'kick' | 'sword_attack' | 'ground_slide';
