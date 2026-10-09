@@ -45,7 +45,7 @@ export function bot(c:Combat,now:number):Input{
  return {
   move:distance>120?Math.sign(p.x-f.x):distance<75&&cycle%4===0?-Math.sign(p.x-f.x)*.65:0,
   jump:distance>200&&cycle%5===0&&window>=300&&window<380,
-  guard:!!attacks[p.action]&&distance<220&&p.time>.10&&cycle%3!==0,
+  guard:!!attacks[p.action]&&distance<220&&p.time>.10&&cycle%3===0,
   attack:distance<190&&window>=300&&window<400
    ?(['attack','kick','attack','ground_slide','sword_attack'] as Action[])[cycle%5]
    :undefined
