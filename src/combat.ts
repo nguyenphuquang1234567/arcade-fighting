@@ -37,4 +37,16 @@ export class Combat{
  if(a.hp<=0||b.hp<=0||this.remaining<=0){const winner=a.hp===b.hp?-1:a.hp>b.hp?0:1;if(winner>=0)this.fighters[winner].wins++;const finished=this.fighters.some(f=>f.wins>=2);this.phase=finished?'over':'roundover';this.delay=3;this.onRound?.(winner,finished)}
  }
 }
-export function bot(c:Combat,now:number):Input{const f=c.fighters[1],p=c.fighters[0],distance=Math.abs(p.x-f.x);const cycle=Math.floor(now/420);return{move:distance>145?Math.sign(p.x-f.x):distance<80?-Math.sign(p.x-f.x):0,jump:distance>220&&cycle%9===0,guard:!!attacks[p.action]&&p.time<.25&&cycle%3!==0,attack:distance<190?(['attack','kick','attack','sword_attack','ground_slide'] as Action[])[cycle%5]:undefined}}
+// Easy sparring bot: slow approach, short attack opportunities and delayed guards.
+export function bot(c:Combat,now:number):Input{
+ const f=c.fighters[1],p=c.fighters[0],distance=Math.abs(p.x-f.x);
+ const cycle=Math.floor(now/1800),window=now%1800;
+ return {
+  move:distance>145?Math.sign(p.x-f.x)*.55:0,
+  jump:false,
+  guard:!!attacks[p.action]&&p.time>.3&&cycle%5===0,
+  attack:distance<190&&window>=700&&window<800
+   ?(['attack','attack','kick','attack','sword_attack'] as Action[])[cycle%5]
+   :undefined
+ };
+}
