@@ -2,7 +2,7 @@ import { maskCollision, getHitboxes } from './geometry';
 export type Action='idle'|'walk'|'run'|'jump'|'attack'|'kick'|'sword_attack'|'ground_slide'|'hurt'|'death';
 export type Input={move:number,jump:boolean,guard:boolean,attack?:Action};
 export type Fighter={character:'moon'|'ember',x:number,y:number,vy:number,hp:number,energy:number,face:number,action:Action,time:number,duration:number,hit:boolean,guard:boolean,wins:number};
-export const attacks:Partial<Record<Action,{damage:number,cost:number,duration:number,active:number,activeEnd:number}>>={attack:{damage:9,cost:8,duration:.36,active:.13,activeEnd:.21},kick:{damage:14,cost:15,duration:.55,active:.22,activeEnd:.33},sword_attack:{damage:23,cost:28,duration:.8,active:.32,activeEnd:.56},ground_slide:{damage:11,cost:20,duration:.62,active:.2,activeEnd:.4}};
+export const attacks:Partial<Record<Action,{damage:number,cost:number,duration:number,active:number,activeEnd:number}>>={attack:{damage:9,cost:8,duration:.36,active:.13,activeEnd:.21},kick:{damage:14,cost:15,duration:.55,active:.22,activeEnd:.33},sword_attack:{damage:23,cost:28,duration:.7,active:.32,activeEnd:.56},ground_slide:{damage:11,cost:20,duration:.5,active:.2,activeEnd:.4}};
 export class Combat{
  fighters:Fighter[]=[];remaining=60;round=1;phase:'menu'|'fight'|'roundover'|'over'='menu';delay=0;onHit?:(x:number,y:number,blocked:boolean)=>void;onRound?:(winner:number,finished:boolean)=>void;
  constructor(){this.resetFighters()}

@@ -27,7 +27,7 @@ export type Point = { x: number; y: number };
 export type BodyRegion = 'head' | 'body' | 'legs';
 export type HurtPolygon = { region: BodyRegion; points: Point[] };
 export type Contact = Box & { region: BodyRegion };
-export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:5,walk:5};
+export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:10,walk:5};
 export function poseFrame(f: Fighter, timing?: Timing): number {
   if (timing) {
     if (f.action === 'ground_slide') return f.time < timing.activeEnd ? 0 : 1;
