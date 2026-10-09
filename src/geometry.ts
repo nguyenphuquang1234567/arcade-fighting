@@ -1,5 +1,7 @@
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts } from './fighters';
+import hitEdits from './hitbox-overrides.json';
+import {defaultHitboxes,type HitEdits} from './hitbox-model';
 import { capsulesFor } from './hurtcapsule';
 import type {Point,BodyRegion,HurtPolygon} from './collision-types';
 export type {Point,BodyRegion,HurtPolygon} from './collision-types';
@@ -84,14 +86,8 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   if (!timing || f.hp <= 0 || f.time < timing.active || f.time >= timing.activeEnd) return [];
   const frame = poseFrame(f, timing);
-  const profile: Partial<Record<Action, Box>> = {
-    attack: box(355, frame === 5 ? 205 : 195, 110, 55),
-    kick: box(350, 195, 120, 70),
-    sword_attack: box(285, frame === 3 ? 275 : 295, 205, 90),
-    ground_slide: box(frame === 0 ? 380 : 325, 425, frame === 0 ? 100 : 95, 65),
-  };
-  const b = profile[f.action];
-  return b ? [worldBox(f, b)] : [];
+  const boxes=(hitEdits as HitEdits)[`${f.character}/${f.action}/${frame}`]??defaultHitboxes(f.action,frame);
+  return boxes.map(b=>worldBox(f,b));
 }
 export function collision(hitboxes: Box[], hurtboxes: HurtPolygon[]): Contact | undefined {
   for (const hit of hitboxes) for (const hurt of hurtboxes) {
