@@ -12,6 +12,15 @@ counts={'idle':2,'walk':3,'run':8,'jump':2,'attack':10,'kick':10,'sword_attack':
 def distance(x,y,a,b):
  dx=b[0]-a[0];dy=b[1]-a[1];t=max(0,min(1,((x-a[0])*dx+(y-a[1])*dy)/(dx*dx+dy*dy or 1)))
  return math.hypot(x-a[0]-t*dx,y-a[1]-t*dy)
+def inside(x,y,points):
+ hit=False
+ for i,(ax,ay) in enumerate(points):
+  bx,by=points[i-1]
+  if (ay>y)!=(by>y) and x<(bx-ax)*(y-ay)/(by-ay)+ax:hit=not hit
+ return hit
+# Idle-specific semantic outlines: shoulder/vest and lower clothing, no bracers/hands.
+idle_body=[(73,66),(94,67),(102,77),(103,94),(109,113),(78,115),(67,108),(71,91),(71,83),(66,76)]
+idle_lower=[(68,111),(109,111),(116,126),(128,145),(128,156),(46,156),(46,142),(37,130),(46,117)]
 data={}; previews=[]
 for char in ['moon','ember']:
  block=source.split('const '+char+': PoseSet = {')[1].split('\n};')[0]
@@ -48,11 +57,17 @@ for char in ['moon','ember']:
       if frame in (2,3) and u>hx+31 and v<134:include=False
       if frame in (4,5) and u>hx+15 and v<hy+47:include=False
       if frame in (0,1) and ((v<hy-21) or (u>hx+17 and v<hy+18)):include=False
+     if action=='idle':include=True
      if not include:continue
      label=1 if head<=1 and v<hy+13 else 3 if legs<torso and v>hy+13 else 2
      # No arm hurtboxes on this branch: retain the central torso,
      # head and legs, instead of the wide arm inclusion seed.
-     if label==2 and torso>16:continue
+     if action=='idle':
+      if head<=1.1 and v<hy+14:label=1
+      elif inside(u,v,idle_body):label=2
+      elif inside(u,v,idle_lower):label=3
+      else:continue
+     elif label==2 and torso>16:continue
      labels[y*512+x]=label
    runs=[]
    for y in range(512):
