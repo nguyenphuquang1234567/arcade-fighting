@@ -28,7 +28,8 @@ export class Combat{
    f.hit=true;
    if(!this.training)enemy.hp=Math.max(0,enemy.hp-(blocked?attack.damage*.18:attack.damage));
    if(blocked&&!this.training)enemy.energy-=10;
-   else{enemy.action=enemy.hp<=0?'death':'hurt';enemy.duration=enemy.hp<=0?10:.28;enemy.time=0;enemy.hit=true;}
+   if(enemy.hp<=0){enemy.action='death';enemy.duration=10;enemy.time=0;enemy.hit=true;enemy.guard=false;}
+   else if(!blocked){enemy.action='hurt';enemy.duration=.28;enemy.time=0;enemy.hit=true;}
    enemy.x=Math.max(90,Math.min(1190,enemy.x+direction*(blocked?12:32)));
    this.onHit?.(contact.x+contact.width/2,contact.y+contact.height/2,blocked,f.action);
  }
