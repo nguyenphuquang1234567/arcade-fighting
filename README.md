@@ -23,10 +23,12 @@ Combat now uses sprite-space rectangular hitboxes and hurtboxes from `src/geomet
 
 Press H or click H / HITBOXES to show green body hurtboxes and red active attack hitboxes. `npm test` runs 20 combat checks covering directions, range, height, guard, recovery, posture, single-hit behavior and simultaneous attacks.
 
-## Polygon hurtboxes
+## Pixel hurtbox masks
 
-Branch `feat/polygon-hurtboxes` preserves the previous game on `main`. Both fighters now have per-frame anatomical polygon hurtboxes: head, torso, and separate thigh/shin/foot polygons for each leg. These are authored approximations of the sprite anatomy, not exact alpha contours. Weapons, sword trails, and decorative cloth are excluded. All rendered frames use the same pose clock as collision geometry; running remains 5 FPS.
+Current branch: `feat/polygon-hurtboxes`. The original rectangular game remains on `main`. Collision now tests per-frame occupied source pixels (row runs), using the same 512px frame, scale, facing and pose clock as rendering. There are 90 frame masks for Moon/Ember, including empty death masks. Running remains 5 FPS. Press **H** for yellow head, green body/arms, blue legs and red attack rectangles. Damage is unchanged across regions.
 
-Press **H**: yellow = head, green = torso, blue = legs, red = active attack hitbox. Rectangle attacks are clipped against the actual hurt polygons; empty space inside a polygon bounding box does not count. Existing damage values remain unchanged for all regions.
+Masks are derived from sprite alpha plus anatomical inclusion seeds. Every selected pixel has nonzero source alpha, so the selected silhouette aligns exactly. **Semantic selection is still an approximation**: some clothing/hair/hand pixels or pixels adjacent to a sword can need manual correction. The seed masks are not a claim of fully reviewed, 100% anatomical segmentation.
 
-Validation: `npm test` covers attack windows, guard/trades, airborne/slide postures, polygon clipping and mirroring, and pose coverage for both fighters. `npm run build` checks TypeScript and production bundling.
+Open **MASK EDITOR** or `/mask-editor.html` to select a character/action/frame, paint head/body/legs, or erase weapons/effects. The brush only paints nontransparent source pixels. Undo, reset, JSON import/export, and local saving are available. Saved edits apply to the game in other tabs on the same browser/origin. Export JSON for a durable backup; browser storage is not a repository asset.
+
+`python3 scripts/build-hurtmasks.py` (Pillow) regenerates seed masks without altering sprite art. It does not overwrite browser edits. Generated contact sheets are `/tmp/moon-masks.jpg` and `/tmp/ember-masks.jpg`. `npm test` covers combat and pixel-mask contacts; `npm run build` builds both game and editor pages.

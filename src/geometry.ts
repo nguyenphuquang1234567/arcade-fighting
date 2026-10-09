@@ -1,6 +1,6 @@
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts } from './fighters';
-import { hurtboxPoses } from './hurtbox-poses';
+import { maskFor,regionNames } from './hurtmask';
 
 export type Box = { x: number; y: number; width: number; height: number };
 export type Strike = 'attack' | 'kick' | 'sword_attack' | 'ground_slide';
@@ -40,44 +40,28 @@ export function poseFrame(f: Fighter, timing?: Timing): number {
 export function worldPoint(f: Fighter, p: Point): Point {
   return {x:f.x+f.face*(p.x-256)*SPRITE_SCALE,y:SPRITE_BASELINE+f.y+(p.y-512)*SPRITE_SCALE};
 }
-function ellipse(x:number,y:number,rx:number,ry:number):Point[]{
-  return Array.from({length:10},(_,i)=>{const angle=i*Math.PI/5;return{x:x+Math.cos(angle)*rx,y:y+Math.sin(angle)*ry};});
+// One rectangle per source-alpha run. Their union is the exact selected pixel mask.
+export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
+ if(f.hp<=0||f.action==='death')return [];
+ return maskFor(f,poseFrame(f,timing)).map(([y,x,end,region])=>({region:regionNames[region] as BodyRegion,points:[{x,y},{x:end,y},{x:end,y:y+1},{x,y:y+1}].map(p=>worldPoint(f,p))}));
 }
-// Convex anatomical segments with beveled ends, rather than a rectangular
-// envelope between the legs. The neck-to-pelvis segment follows torso lean.
-function segment(a:Point,b:Point,startRadius:number,endRadius:number):Point[]{
-  const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy)||1;
-  const ux=dx/length,uy=dy/length,nx=-uy,ny=ux;
-  return [
-    {x:a.x-ux*startRadius*.3+nx*startRadius*.65,y:a.y-uy*startRadius*.3+ny*startRadius*.65},
-    {x:a.x+nx*startRadius,y:a.y+ny*startRadius},
-    {x:b.x+nx*endRadius,y:b.y+ny*endRadius},
-    {x:b.x+ux*endRadius*.3+nx*endRadius*.65,y:b.y+uy*endRadius*.3+ny*endRadius*.65},
-    {x:b.x+ux*endRadius*.3-nx*endRadius*.65,y:b.y+uy*endRadius*.3-ny*endRadius*.65},
-    {x:b.x-nx*endRadius,y:b.y-ny*endRadius},
-    {x:a.x-nx*startRadius,y:a.y-ny*startRadius},
-    {x:a.x-ux*startRadius*.3-nx*startRadius*.65,y:a.y-uy*startRadius*.3-ny*startRadius*.65},
-  ];
-}
-export function getHurtboxes(f: Fighter, timing?: Timing): HurtPolygon[] {
-  if(f.hp<=0||f.action==='death')return [];
-  const set=hurtboxPoses[f.character];
-  const poses=set[f.action];
-  const p=poses[poseFrame(f,timing)];
-  const [hx,hy,px,py,k1x,k1y,f1x,f1y,k2x,k2y,f2x,f2y]=p;
-  const hip={x:px,y:py};
-  const shoulder={x:hx-4,y:hy+14};
-  const local:HurtPolygon[]=[
-    {region:'head',points:ellipse(hx,hy,8,10)},
-    {region:'body',points:segment(shoulder,hip,f.character==='ember'?12:11,14)},
-  ];
-  for(const [kx,ky,fx,fy] of [[k1x,k1y,f1x,f1y],[k2x,k2y,f2x,f2y]]){
-    const knee={x:kx,y:ky},foot={x:fx,y:fy};
-    local.push({region:'legs',points:segment(hip,knee,12,9)});
-    local.push({region:'legs',points:segment(knee,foot,9,5)});
-    local.push({region:'legs',points:ellipse(fx+2,fy-1,8,4)});
+// Test rectangles directly against occupied source pixels, preserving flip/scale.
+export function maskCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{
+ if(f.hp<=0||f.action==='death')return;
+ const runs=maskFor(f,poseFrame(f,timing));
+ for(const hit of hitboxes){
+  const left=256+(hit.x-f.x)/SPRITE_SCALE*f.face;
+  const right=256+(hit.x+hit.width-f.x)/SPRITE_SCALE*f.face;
+  const minX=Math.min(left,right),maxX=Math.max(left,right);
+  const minY=512+(hit.y-SPRITE_BASELINE-f.y)/SPRITE_SCALE;
+  const maxY=minY+hit.height/SPRITE_SCALE;
+  for(const [y,x,end,region] of runs){
+   if(y>=maxY)break;
+   if(y+1<=minY||x>=maxX||end<=minX)continue;
+   const contact=overlap(hit,worldBox(f,{x,y,width:end-x,height:1}));
+   if(contact)return {...contact,region:regionNames[region] as BodyRegion};
   }
-  return local.map(poly=>({region:poly.region,points:poly.points.map(pt=>worldPoint(f,{x:pt.x*3.2,y:pt.y*3.2}))}));
+ }
 }
 export function polygonBounds(points:Point[]):Box{
   const x=Math.min(...points.map(p=>p.x)),y=Math.min(...points.map(p=>p.y));
