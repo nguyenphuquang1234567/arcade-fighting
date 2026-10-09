@@ -6,7 +6,7 @@ import {fighters, actions, frameCounts, spriteFile} from './fighters';
 const $=(id:string)=>document.getElementById(id)!;
 const combat=new Combat();let mode='bot',paused=false,sound=true,showBoxes=false,scene:Dojo;
 const keys=new Set<string>(),pressed=new Set<string>();
-window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);if(e.code==='Escape'&&!e.repeat)togglePause();if(e.code==='KeyH'&&!e.repeat)toggleBoxes()});window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressed.clear();if(combat.phase==='fight'&&!paused)togglePause()});
+window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);if(e.code==='Escape'&&!e.repeat){if(paused)quitMatch();else togglePause()};if(e.code==='KeyH'&&!e.repeat)toggleBoxes()});window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressed.clear();if(combat.phase==='fight'&&!paused)togglePause()});
 function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1]))-Number(keys.has(m[0])),jump:pressed.has(m[2]),guard:keys.has(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
 
 class Dojo extends Phaser.Scene{
@@ -36,11 +36,19 @@ class Dojo extends Phaser.Scene{
 }
 function toggleBoxes(){showBoxes=!showBoxes;$('boxes').textContent=showBoxes?'H / HEAD · BODY · LEGS':'H / HITBOXES';$('boxes').setAttribute('aria-pressed',String(showBoxes));}
 function showMenu(title?:string){$('overlay').classList.remove('hidden');if(title){document.querySelector('h1')!.textContent=title;$('start').innerHTML='REMATCH <span>↗</span>'}$('status').textContent='AWAITING CHALLENGER';$('callout').textContent='';}
-function togglePause(){if(combat.phase!=='fight')return;paused=!paused;$('callout').textContent=paused?'PAUSED':'';$('pause').textContent=paused?'ESC / RESUME':'ESC / PAUSE'}
+function togglePause(){if(combat.phase!=='fight')return;paused=!paused;$('pause-menu').hidden=!paused;$('callout').textContent=paused?'PAUSED':'';$('pause').textContent=paused?'ESC / VỀ MENU':'ESC / PAUSE'}
 $('pause').onclick=togglePause;
+$('resume-match').onclick=()=>{if(paused)togglePause()};
+function quitMatch(){
+ paused=false;combat.phase='menu';keys.clear();pressed.clear();
+ $('pause-menu').hidden=true;$('pause').textContent='ESC / PAUSE';
+ showMenu();document.querySelector('h1')!.innerHTML='Only one<br><em>shadow remains.</em>';
+ $('start').innerHTML='ENTER THE DOJO <span>↗</span>';
+}
+$('quit-match').onclick=quitMatch;
 $('boxes').onclick=toggleBoxes;
 document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(button=>button.onclick=()=>{mode=button.dataset.mode!;$('p2-controls').hidden=mode!=='local';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b===button));$('p2-help').textContent=mode==='local'?'P2: Arrows move / guard · 1 / 2 / 3 / 0 attacks':'Keep your stamina. A patient fighter survives.'});
-$('start').onclick=()=>{if(!scene)return;keys.clear();pressed.clear();combat.start(mode==='training');paused=false;$('overlay').classList.add('hidden');$('status').textContent=mode==='training'?'TRAINING · INFINITE HEALTH':mode==='bot'?'YOU VS EMBER AI':'LOCAL DUEL';if(sound&&!scene.music?.isPlaying)scene.music?.play()};
+$('start').onclick=()=>{if(!scene)return;keys.clear();pressed.clear();combat.start(mode==='training');paused=false;$('pause-menu').hidden=true;$('pause').textContent='ESC / PAUSE';$('overlay').classList.add('hidden');$('status').textContent=mode==='training'?'TRAINING · INFINITE HEALTH':mode==='bot'?'YOU VS EMBER AI':'LOCAL DUEL';if(sound&&!scene.music?.isPlaying)scene.music?.play()};
 $('sound').onclick=()=>{sound=!sound;$('sound').textContent=sound?'SOUND ON':'SOUND OFF';if(sound)scene?.music?.play();else scene?.music?.pause()};
 new Phaser.Game({type:Phaser.AUTO,parent:'game',width:1280,height:720,backgroundColor:'#251b2d',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:Dojo,render:{antialias:true}});
 Object.assign(window,{__dojo:{combat,get collisionBoxes(){return combat.fighters.map(f=>({hurt:getHurtboxes(f,attacks[f.action]),hit:getHitboxes(f,attacks[f.action])}));},get showBoxes(){return showBoxes;},get paused(){return paused},get animationState(){return scene?.sprites.map(sprite=>({key:sprite.texture.key,frames:scene.anims.get(sprite.texture.key)?.frames.length,fps:scene.anims.get(sprite.texture.key)?.frameRate,frame:Number(sprite.frame.name)+1}))}}});
