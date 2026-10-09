@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import {Combat,bot,attacks,type Action,type Input} from './combat';
 import './style.css';
 import {getHitboxes, getHurtboxes, SPRITE_SCALE, SPRITE_BASELINE, poseFrame} from './geometry';
-import {fighters, actions, frameCounts} from './fighters';
+import {fighters, actions, frameCounts, spriteFile} from './fighters';
 const $=(id:string)=>document.getElementById(id)!;
 const combat=new Combat();let mode='bot',paused=false,sound=false,showBoxes=false,scene:Dojo;
 const keys=new Set<string>(),pressed=new Set<string>();
@@ -11,7 +11,7 @@ function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','Arr
 
 class Dojo extends Phaser.Scene{
  sprites:Phaser.GameObjects.Sprite[]=[];shadows:Phaser.GameObjects.Ellipse[]=[];music?:Phaser.Sound.BaseSound;boxGraphics?:Phaser.GameObjects.Graphics;
- preload(){for(const {key:who} of fighters)for(const action of actions)this.load.spritesheet(`${who}-${action}`,`/characters/${who}/${action==='sword_attack'?'sword_attack-six':action==='run'||['attack','kick'].includes(action)?`${action}-v2`:action}.png`,{frameWidth:512,frameHeight:512});this.load.image('background','/images/sunset_temple_background.png');this.load.image('courtyard','/images/dojo_courtyard_midground.png');this.load.image('spark','/images/hit_spark_fx.png');this.load.audio('music','/audio/bgm_sunset_dojo.mp3')}
+ preload(){for(const {key:who} of fighters)for(const action of actions)this.load.spritesheet(`${who}-${action}`,`/characters/${who}/${spriteFile(who,action)}`,{frameWidth:512,frameHeight:512});this.load.image('background','/images/sunset_temple_background.png');this.load.image('courtyard','/images/dojo_courtyard_midground.png');this.load.image('spark','/images/hit_spark_fx.png');this.load.audio('music','/audio/bgm_sunset_dojo.mp3')}
  create(){scene=this;this.add.image(640,360,'background').setDisplaySize(1280,720);this.add.image(640,631,'courtyard').setDisplaySize(1280,240);this.add.rectangle(640,720,1280,180,0x160f20,.28).setOrigin(.5,1);
  for(const {key:who} of fighters){for(const action of actions){this.anims.create({key:`${who}-${action}`,frames:this.anims.generateFrameNumbers(`${who}-${action}`,{start:0,end:frameCounts[action]-1}),frameRate:['attack','kick','sword_attack'].includes(action)?frameCounts[action]/attacks[action]!.duration:action==='idle'?3:action==='run'||action==='walk'?5:6,repeat:['idle','run','walk'].includes(action)?-1:0})}this.shadows.push(this.add.ellipse(0,655,125,18,0x090513,.5));this.sprites.push(this.add.sprite(0,SPRITE_BASELINE,`${who}-idle`).setOrigin(.5,1).setScale(SPRITE_SCALE))}
  this.music=this.sound.add('music',{loop:true,volume:.35});combat.onHit=(x,y,blocked)=>{this.cameras.main.shake(90,blocked?.001:.004);const fx=this.add.image(x,y,'spark').setDisplaySize(blocked?65:110,blocked?50:85).setTint(blocked?0x97d9ff:0xffd991);this.tweens.add({targets:fx,alpha:0,scaleX:fx.scaleX*1.6,scaleY:fx.scaleY*1.6,duration:180,onComplete:()=>fx.destroy()});this.tone(blocked?220:110)};combat.onRound=(winner,finished)=>{ $('callout').textContent=winner<0?'DRAW':combat.fighters.some(f=>f.hp<=0)?'K.O.':'TIME UP';if(finished){setTimeout(()=>{showMenu(winner===0?'Moon Ronin prevails.':'Ember Brawler prevails.');},1700)}};

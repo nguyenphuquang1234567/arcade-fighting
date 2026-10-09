@@ -18,7 +18,7 @@ for char in ['moon','ember']:
  poses={a:json.loads(v) for a,v in re.findall(r' (\w+): (\[.*\]),',block)}
  data[char]={}
  for action,count in counts.items():
-  filename='sword_attack-six' if action=='sword_attack' else action+'-v2' if action in ['run','attack','kick'] else action
+  filename='idle-ronin' if char=='ember' and action=='idle' else 'sword_attack-six' if action=='sword_attack' else action+'-v2' if action in ['run','attack','kick'] else action
   strip=Image.open(root/f'assets/characters/{char}/{filename}.png').convert('RGBA')
   frames=[]
   for frame in range(count):

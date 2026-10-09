@@ -32,3 +32,7 @@ Masks are derived from sprite alpha plus anatomical inclusion seeds. Every selec
 Open **MASK EDITOR** or `/mask-editor.html` to select a character/action/frame, paint head/body/legs, or erase weapons/effects. The brush only paints nontransparent source pixels. Undo, reset, JSON import/export, and local saving are available. Saved edits apply to the game in other tabs on the same browser/origin. Export JSON for a durable backup; browser storage is not a repository asset.
 
 `python3 scripts/build-hurtmasks.py` (Pillow) regenerates seed masks without altering sprite art. It does not overwrite browser edits. Generated contact sheets are `/tmp/moon-masks.jpg` and `/tmp/ember-masks.jpg`. `npm test` covers combat and pixel-mask contacts; `npm run build` builds both game and editor pages.
+
+### Matched idle poses
+
+Ronin remains the reference for idle. Ember now uses `idle-ronin.png`: two lowered-arm standing frames with Ronin's stance, keeping Ember's orange/red appearance. Both use 3 FPS with the same pose clock and 492px foot baseline. The old Ember `idle.png` remains available. Ember idle mask overrides use a new `idle-ronin` key to avoid applying old pose masks to the replacement artwork.

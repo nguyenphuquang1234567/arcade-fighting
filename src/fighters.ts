@@ -15,3 +15,10 @@ export function attackFrame(time: number, active: number, duration: number, coun
   if (time < active) return Math.min(contact - 1, Math.floor(Math.max(0, time) / active * contact));
   return Math.min(count - 1, contact + Math.floor((time - active) / (duration - active) * (count - contact)));
 }
+
+export function spriteFile(character:'moon'|'ember',action:Action):string{
+ if(character==='ember'&&action==='idle')return 'idle-ronin.png';
+ if(action==='sword_attack')return 'sword_attack-six.png';
+ if(['run','attack','kick'].includes(action))return `${action}-v2.png`;
+ return `${action}.png`;
+}

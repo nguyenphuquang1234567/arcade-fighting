@@ -6,7 +6,7 @@ export type MaskData=Record<'moon'|'ember',Record<Action,MaskFrame[]>>;
 export const masks=raw as unknown as MaskData;
 export const regionNames=['','head','body','legs'] as const;
 const overrides=new Map<string,MaskFrame>();
-export const maskKey=(character:string,action:string,frame:number)=>`${character}/${action}/${frame}`;
+export const maskKey=(character:string,action:string,frame:number)=>`${character}/${character==='ember'&&action==='idle'?'idle-ronin':action}/${frame}`;
 export function installMask(key:string,runs:MaskFrame){overrides.set(key,runs);}
 export function maskFor(f:Fighter,frame:number):MaskFrame{
  return overrides.get(maskKey(f.character,f.action,frame))??masks[f.character][f.action][frame];
