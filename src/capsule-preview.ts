@@ -78,7 +78,7 @@ async function draw(){
  ctx.lineWidth=index===selected?3:1;ctx.strokeStyle=index===selected?'#ffffff':offset.part==='head'?'#ffdb5b':'#63efbb';ctx.beginPath();ctx.moveTo(x1+nx,y1+ny);ctx.lineTo(x2+nx,y2+ny);ctx.arc(x2,y2,r,theta+Math.PI/2,theta-Math.PI/2,true);ctx.lineTo(x1-nx,y1-ny);ctx.arc(x1,y1,r,theta-Math.PI/2,theta+Math.PI/2,true);ctx.closePath();ctx.stroke();
  }
 
- document.querySelector('#info')!.textContent=`${c} / ${a} / frame ${i+1} · ${capsules().length} capsule. Preview chưa áp dụng vào va chạm của game.`;
+ document.querySelector('#info')!.textContent=`${c} / ${a} / frame ${i+1} · ${capsules().length} capsule. Game dùng capsule đã lưu mã nguồn.`;
 }
 angle.oninput=()=>{const key=selectedKey(),list=structuredClone(capsules());if(!list[selected])return;list[selected].angle=Number(angle.value);edits[key]=list;draft();void draw()};
 who.onchange=()=>void draw();action.onchange=()=>{frame.value='1';void draw()};frame.oninput=()=>void draw();width.oninput=()=>{const key=selectedKey(),list=structuredClone(capsules());if(!list[selected])return;list[selected].width=Number(width.value);edits[key]=list;draft();void draw()};void draw();

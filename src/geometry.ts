@@ -1,6 +1,6 @@
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts } from './fighters';
-import { polygonsFor } from './hurtpolygon';
+import { capsulesFor } from './hurtcapsule';
 import type {Point,BodyRegion,HurtPolygon} from './polygon-model';
 export type {Point,BodyRegion,HurtPolygon} from './polygon-model';
 
@@ -41,7 +41,7 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
- return polygonsFor(f,poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
+ return capsulesFor(f.character,f.action,poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
 export function polygonCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{
  return collision(hitboxes,getHurtboxes(f,timing));
