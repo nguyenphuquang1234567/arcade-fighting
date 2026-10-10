@@ -28,4 +28,9 @@ const ember: PoseSet = {
  hurt: [[64,65,76,108,68,130,58,149,97,132,117,149]],
  death: [[133,143,83,146,52,148,28,150,91,145,119,151]],
 };
+// Seed ten independently editable run poses from the previous eight-frame cycle.
+for (const poses of [moon, ember]) {
+ const old = poses.run;
+ poses.run = Array.from({length:10}, (_, i) => [...old[Math.floor(i*8/10)]] as unknown as Pose);
+}
 export const hurtboxPoses = { moon, ember };

@@ -12,6 +12,18 @@ const upgrade=(list:any[])=>list.length&&list.every(v=>v.part===undefined)?[...l
 const normalize=(data:Record<string,unknown>):CapsuleEdits=>Object.fromEntries(Object.entries(data).map(([k,v])=>[k,upgrade(Array.isArray(v)?v:[v])])) as CapsuleEdits;
 let edits:CapsuleEdits=normalize(structuredClone(sourceEdits));
 try{const draft=JSON.parse(localStorage.getItem(storageKey)??'{}');if(!validateCapsules(draft))edits={...edits,...normalize(draft)}}catch{}
+// Preserve existing browser edits while migrating run to ten independent frames.
+const runMigrationKey=storageKey+'-run-ten-independent-v1';
+if(!localStorage.getItem(runMigrationKey)){
+ const previous=structuredClone(edits);
+ localStorage.setItem(runMigrationKey+'-backup',JSON.stringify(previous));
+ for(const character of ['moon','ember'])for(let i=0;i<10;i++){
+  const value=previous[`${character}/run/${Math.floor(i*8/10)}`];
+  if(value)edits[`${character}/run/${i}`]=structuredClone(value);
+ }
+ draftRun();localStorage.setItem(runMigrationKey,'done');
+}
+function draftRun(){localStorage.setItem(storageKey,JSON.stringify(edits))}
 // Replace stale Ember drafts once when importing the Ronin arrangement.
 const emberImportKey=storageKey+'-ember-from-ronin-v1';
 if(!localStorage.getItem(emberImportKey)){
@@ -19,7 +31,7 @@ if(!localStorage.getItem(emberImportKey)){
  for(const [key,value] of Object.entries(normalize(sourceEdits)))if(key.startsWith('ember/'))edits[key]=value;
  localStorage.setItem(storageKey,JSON.stringify(edits));localStorage.setItem(emberImportKey,'done');
 }
-const authoredFrame=()=>who.value==='moon'&&action.value==='run'?Math.floor((Number(frame.value)-1)*8/10):Number(frame.value)-1;
+const authoredFrame=()=>Number(frame.value)-1;
 const selectedKey=()=>`${who.value}/${action.value}/${authoredFrame()}`;
 let selected=0;
 const capsules=()=>edits[selectedKey()]??[{x:0,y:0,width:130,part:'body'},head()];

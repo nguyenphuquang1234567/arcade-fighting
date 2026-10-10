@@ -28,7 +28,7 @@ export function overlap(a: Box, b: Box): Box | undefined {
   return width > 0 && height > 0 ? { x, y, width, height } : undefined;
 }
 export type Contact = Box & { region: BodyRegion };
-export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:10,walk:5};
+export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:20,walk:5};
 export function poseFrame(f: Fighter, timing?: Timing): number {
   if (timing) {
     if (f.action === 'ground_slide') return f.time < timing.activeEnd ? 0 : 1;
@@ -43,10 +43,7 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
- // Reuse the existing eight authored capsule poses across the experimental run cycle.
- const visualFrame=poseFrame(f,timing);
- const hurtFrame=f.character==='moon'&&f.action==='run'?Math.floor(visualFrame*8/10):visualFrame;
- return capsulesFor(f.character,f.action,hurtFrame).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
+ return capsulesFor(f.character,f.action,poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
 export function polygonCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{
  return collision(hitboxes,getHurtboxes(f,timing));

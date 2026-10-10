@@ -4,7 +4,7 @@ export const fighters = [
   { key: 'ember', name: 'EMBER BRAWLER', color: '#f2a163' },
 ] as const;
 export const frameCounts: Record<Action, number> = {
-  idle: 2, walk: 3, run: 8, jump: 2, attack: 10, kick: 10,
+  idle: 2, walk: 3, run: 10, jump: 2, attack: 10, kick: 10,
   sword_attack: 6, ground_slide: 2, hurt: 1, death: 1,
 };
 export function frameCount(character: 'moon' | 'ember', action: Action): number {
@@ -21,7 +21,7 @@ export function attackFrame(time: number, active: number, duration: number, coun
 }
 
 export function spriteFile(character:'moon'|'ember',action:Action):string{
- if(character==='moon'&&action==='run')return 'run-user-10.png';
+ if(action==='run')return 'run-user-10.png';
  if(character==='ember'&&action==='idle')return 'idle-ronin.png';
  if(action==='sword_attack')return 'sword_attack-six.png';
  if(['run','attack','kick'].includes(action))return `${action}-v2.png`;
