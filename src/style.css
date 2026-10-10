@@ -16,3 +16,16 @@
 #pause-menu{position:absolute;inset:0;background:#100d18a6;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}#pause-menu[hidden]{display:none}#pause-menu button{background:#241d2f;padding:15px 28px;min-width:250px;font-size:13px;border-radius:5px}
 
 #menu-help{max-width:620px;margin:0 0 14px;padding:10px 14px;background:#15111dcc;border:1px solid #ffffff20;border-radius:6px;font-size:11px;color:#e8dee7;line-height:1.8}#menu-help p{margin:0 0 6px;color:#e8dee7;font-size:11px}#menu-help strong{display:block;color:#a9e6dc;font-size:10px;letter-spacing:1px}#menu-p2{margin-top:6px}#menu-p2 strong{color:#ffbd91}#menu-help kbd{padding:2px 4px;font-size:10px}#menu-help .menu-shortcuts{margin:8px 0 0;color:#c4b5c8;font-size:10px}#overlay{overflow-y:auto}#overlay:has(#menu-help) h1{font-size:clamp(28px,4vw,58px);margin:12px 0 8px}#overlay:has(#menu-help) .modes{margin:10px 0}@media(max-width:750px){#menu-help{padding:5px 8px;margin-bottom:7px;font-size:8px;line-height:1.5}#menu-help p,#menu-help strong,#menu-help .menu-shortcuts{font-size:8px}#menu-help kbd{font-size:7px;padding:1px 2px}#overlay:has(#menu-help){justify-content:flex-start;padding-top:4%}#overlay:has(#menu-help) h1{font-size:28px}}
+
+#touch-controls{display:none}
+@media (max-width:750px),(pointer:coarse){
+ .hud-controls,#menu-help,.bottom,#overlay>p{display:none!important}
+ #touch-controls{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px max(12px,env(safe-area-inset-left)) 12px max(12px,env(safe-area-inset-right));background:#17131d;border:1px solid #63504a;border-top:0;user-select:none;-webkit-user-select:none}
+ #touch-controls button{touch-action:none;-webkit-touch-callout:none;min-width:48px;min-height:48px;border-radius:12px;background:#29212f;color:#f2e7db;font-weight:700;font-size:12px;box-shadow:0 3px 0 #0e0b13}
+ #touch-controls button.held{background:#b87950;color:#fff;transform:translateY(2px);box-shadow:0 1px 0 #0e0b13}
+ .d-pad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:5px}
+ .d-up{grid-column:2}.d-left{grid-column:1;grid-row:2}.d-down{grid-column:2;grid-row:2}.d-right{grid-column:3;grid-row:2}
+ .touch-attacks{display:grid;grid-template-columns:repeat(2,minmax(48px,64px));gap:7px}
+ header{height:56px}.subtitle{display:none}footer{padding:10px 0}
+ #overlay:has(#menu-help) h1{font-size:clamp(24px,5vw,42px)}#overlay:has(#menu-help){justify-content:center;padding:4% 10%}
+}

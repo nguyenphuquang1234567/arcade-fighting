@@ -7,7 +7,22 @@ const $=(id:string)=>document.getElementById(id)!;
 const combat=new Combat();let mode='bot',paused=false,sound=true,showBoxes=false,scene:Dojo;
 const keys=new Set<string>(),pressed=new Set<string>();
 window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);if(e.code==='Escape'&&!e.repeat){if(paused)quitMatch();else togglePause()};if(e.code==='KeyH'&&!e.repeat)toggleBoxes()});window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressed.clear();if(combat.phase==='fight'&&!paused)togglePause()});
-function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1]))-Number(keys.has(m[0])),jump:pressed.has(m[2]),guard:keys.has(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
+const touchPointers=new Map<number,string>();
+const touchHeld=(code:string)=>[...touchPointers.values()].includes(code);
+function clearTouch(){touchPointers.clear();document.querySelectorAll('[data-touch]').forEach(b=>b.classList.remove('held'))}
+for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-touch]'))){
+ button.addEventListener('pointerdown',e=>{
+  e.preventDefault();if(combat.phase!=='fight'||paused)return;
+  const code=button.dataset.touch!;if(!touchHeld(code)&&!keys.has(code))pressed.add(code);
+  touchPointers.set(e.pointerId,code);button.setPointerCapture(e.pointerId);button.classList.add('held');
+ });
+ const release=(e:PointerEvent)=>{touchPointers.delete(e.pointerId);if(!touchHeld(button.dataset.touch!))button.classList.remove('held')};
+ button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);
+ button.addEventListener('contextmenu',e=>e.preventDefault());
+}
+window.addEventListener('blur',clearTouch);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouch()});
+function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1])||touchHeld(m[1]))-Number(keys.has(m[0])||touchHeld(m[0])),jump:pressed.has(m[2]),guard:keys.has(m[3])||touchHeld(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
 
 class Dojo extends Phaser.Scene{
  sprites:Phaser.GameObjects.Sprite[]=[];shadows:Phaser.GameObjects.Ellipse[]=[];music?:Phaser.Sound.BaseSound;boxGraphics?:Phaser.GameObjects.Graphics;
@@ -35,12 +50,12 @@ class Dojo extends Phaser.Scene{
  }
 }
 function toggleBoxes(){showBoxes=!showBoxes;$('boxes').textContent=showBoxes?'H / HEAD · BODY · LEGS':'H / HITBOXES';$('boxes').setAttribute('aria-pressed',String(showBoxes));}
-function showMenu(title?:string){$('overlay').classList.remove('hidden');if(title){document.querySelector('h1')!.textContent=title;$('start').innerHTML='REMATCH <span>↗</span>'}$('status').textContent='AWAITING CHALLENGER';$('callout').textContent='';}
-function togglePause(){if(combat.phase!=='fight')return;paused=!paused;$('pause-menu').hidden=!paused;$('callout').textContent=paused?'PAUSED':'';$('pause').textContent=paused?'ESC / VỀ MENU':'ESC / PAUSE'}
+function showMenu(title?:string){clearTouch();$('overlay').classList.remove('hidden');if(title){document.querySelector('h1')!.textContent=title;$('start').innerHTML='REMATCH <span>↗</span>'}$('status').textContent='AWAITING CHALLENGER';$('callout').textContent='';}
+function togglePause(){if(combat.phase!=='fight')return;paused=!paused;clearTouch();$('pause-menu').hidden=!paused;$('callout').textContent=paused?'PAUSED':'';$('pause').textContent=paused?'ESC / VỀ MENU':'ESC / PAUSE'}
 $('pause').onclick=togglePause;
 $('resume-match').onclick=()=>{if(paused)togglePause()};
 function quitMatch(){
- paused=false;combat.phase='menu';keys.clear();pressed.clear();
+ paused=false;combat.phase='menu';keys.clear();pressed.clear();clearTouch();
  $('pause-menu').hidden=true;$('pause').textContent='ESC / PAUSE';
  showMenu();document.querySelector('h1')!.innerHTML='Only one<br><em>shadow remains.</em>';
  $('start').innerHTML='ENTER THE DOJO <span>↗</span>';
