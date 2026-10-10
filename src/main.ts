@@ -69,7 +69,7 @@ class Dojo extends Phaser.Scene{
    }
  }
 }
-function toggleBoxes(){showBoxes=!showBoxes;$('boxes').textContent=showBoxes?'H / HEAD · BODY · LEGS':'H / HITBOXES';$('boxes').setAttribute('aria-pressed',String(showBoxes));}
+function toggleBoxes(){showBoxes=!showBoxes;}
 function showMenu(title?:string){clearTouch();$('overlay').classList.remove('hidden');if(title){document.querySelector('h1')!.textContent=title;$('start').innerHTML='REMATCH <span>↗</span>'}$('status').textContent='AWAITING CHALLENGER';$('callout').textContent='';}
 function togglePause(){if(combat.phase!=='fight')return;paused=!paused;clearTouch();$('pause-menu').hidden=!paused;$('callout').textContent=paused?'PAUSED':'';$('pause').textContent=paused?'ESC / VỀ MENU':'ESC / PAUSE'}
 $('pause').onclick=togglePause;
@@ -81,7 +81,7 @@ function quitMatch(){
  $('start').innerHTML='ENTER THE DOJO <span>↗</span>';
 }
 $('quit-match').onclick=quitMatch;
-$('boxes').onclick=toggleBoxes;
+
 function updateMenuHelp(){
  $('menu-p1').innerHTML='<strong>P1 · RONIN</strong>'+document.querySelector('.fighter:not(.right) .hud-controls')!.innerHTML;
  $('menu-p2').innerHTML='<strong>P2 · EMBER</strong>'+$('p2-controls').innerHTML;
