@@ -1,11 +1,13 @@
-import {editorFrameCount,editorSprite,poseIndex,type EditorCharacter} from './yuki-assets';
-import {frameCounts,frameCount,spriteFile} from './fighters';
+import {editorFrameCount,editorSprite,editorActions,poseIndex,poseCharacter,type EditorCharacter} from './yuki-assets';
 import type {Action} from './combat';
 import sourceEdits from './capsule-overrides.json';
 import {validateCapsules,type CapsuleEdits} from './capsule-model';
 import {hurtboxPoses} from './hurtbox-poses';
 const who=document.querySelector<HTMLSelectElement>('#who')!,action=document.querySelector<HTMLSelectElement>('#action')!,frame=document.querySelector<HTMLInputElement>('#frame')!,width=document.querySelector<HTMLInputElement>('#width')!,canvas=document.querySelector<HTMLCanvasElement>('#canvas')!,ctx=canvas.getContext('2d')!;
-for(const a of Object.keys(frameCounts))action.add(new Option(a,a));
+const requestedCharacter=new URLSearchParams(location.search).get('character');
+if(requestedCharacter&&[...who.options].some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
+function refreshActions(){const current=action.value;action.replaceChildren(...editorActions(who.value as EditorCharacter).map(a=>new Option(a,a)));if([...action.options].some(o=>o.value===current))action.value=current}
+refreshActions();
 let sequence=0;
 const storageKey='dojo-capsule-draft-v1';
 const head=()=>({x:0,y:0,width:70,angle:0,part:'head' as const});
@@ -73,7 +75,7 @@ async function draw(){
  const token=++sequence,a=action.value as Action,c=who.value as EditorCharacter;frame.max=String(editorFrameCount(c,a));frame.value=String(Math.max(1,Math.min(editorFrameCount(c,a),Number(frame.value))));const i=Number(frame.value)-1;controls();
  const image=new Image();image.src=`/characters/${c}/${editorSprite(c,a)}`;await image.decode();if(token!==sequence)return;
  ctx.clearRect(0,0,512,512);ctx.drawImage(image,i*512,0,512,512,0,0,512,512);
- const p=hurtboxPoses[c==='yuki'?'moon':c][a][poseIndex(c,a,authoredFrame())].map(v=>v*3.2);visible=[];
+ const p=hurtboxPoses[poseCharacter(c)][a][poseIndex(c,a,authoredFrame())].map(v=>v*3.2);visible=[];
  for(const [index,offset] of capsules().entries()){const r=offset.width/2;
  // One rounded capsule remains near the torso, rather than following an extended kicking foot.
  let x1=p[2],y1=p[1]+65,x2=p[2],y2=Math.max(p[7],p[11])-r;
@@ -95,4 +97,4 @@ async function draw(){
  document.querySelector('#info')!.textContent=`${c} / ${a} / frame ${i+1} · ${capsules().length} capsule. Game dùng capsule đã lưu mã nguồn.`;
 }
 angle.oninput=()=>{const key=selectedKey(),list=structuredClone(capsules());if(!list[selected])return;list[selected].angle=Number(angle.value);edits[key]=list;draft();void draw()};
-who.onchange=()=>void draw();action.onchange=()=>{frame.value='1';void draw()};frame.oninput=()=>void draw();width.oninput=()=>{const key=selectedKey(),list=structuredClone(capsules());if(!list[selected])return;list[selected].width=Number(width.value);edits[key]=list;draft();void draw()};void draw();
+who.onchange=()=>{refreshActions();void draw()};action.onchange=()=>{frame.value='1';void draw()};frame.oninput=()=>void draw();width.oninput=()=>{const key=selectedKey(),list=structuredClone(capsules());if(!list[selected])return;list[selected].width=Number(width.value);edits[key]=list;draft();void draw()};void draw();
