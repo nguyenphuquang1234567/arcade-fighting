@@ -29,3 +29,11 @@
  header{height:56px}.subtitle{display:none}footer{padding:10px 0}
  #overlay:has(#menu-help) h1{font-size:clamp(24px,5vw,42px)}#overlay:has(#menu-help){justify-content:center;padding:4% 10%}
 }
+
+@media (max-width:750px),(pointer:coarse){
+ .d-pad{position:relative;display:block;flex:0 0 154px;width:154px;height:154px;border-radius:50%;background:radial-gradient(circle at 40% 30%,#403347,#221a2a 75%);border:2px solid #655069;box-shadow:inset 0 2px 5px #ffffff12,0 4px 0 #0e0b13}
+ .d-pad::after{content:"";position:absolute;left:56px;top:56px;width:38px;height:38px;border-radius:50%;background:#17111f;border:1px solid #76617c;pointer-events:none}
+ #touch-controls .d-pad button{position:absolute;width:50px;height:50px;min-width:0;min-height:0;border:0;border-radius:50%;background:transparent;box-shadow:none;font-size:18px}
+ #touch-controls .d-pad button.held{background:#b87950;transform:none;box-shadow:inset 0 2px 4px #0003}
+ .d-pad .d-up{left:50px;top:2px}.d-pad .d-left{left:2px;top:50px}.d-pad .d-right{right:2px;top:50px}.d-pad .d-down{left:50px;bottom:2px;font-size:12px!important}
+}
