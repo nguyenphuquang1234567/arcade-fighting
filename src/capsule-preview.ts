@@ -5,8 +5,8 @@ import {validateCapsules,type CapsuleEdits} from './capsule-model';
 import {hurtboxPoses} from './hurtbox-poses';
 const who=document.querySelector<HTMLSelectElement>('#who')!,action=document.querySelector<HTMLSelectElement>('#action')!,frame=document.querySelector<HTMLInputElement>('#frame')!,width=document.querySelector<HTMLInputElement>('#width')!,canvas=document.querySelector<HTMLCanvasElement>('#canvas')!,ctx=canvas.getContext('2d')!;
 const requestedCharacter=new URLSearchParams(location.search).get('character');
-if(requestedCharacter&&[...who.options].some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
-function refreshActions(){const current=action.value;action.replaceChildren(...editorActions(who.value as EditorCharacter).map(a=>new Option(a,a)));if([...action.options].some(o=>o.value===current))action.value=current}
+if(requestedCharacter&&Array.from(who.options).some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
+function refreshActions(){const current=action.value;action.replaceChildren(...editorActions(who.value as EditorCharacter).map(a=>new Option(a,a)));if(Array.from(action.options).some(o=>o.value===current))action.value=current}
 refreshActions();
 let sequence=0;
 const storageKey='dojo-capsule-draft-v1';

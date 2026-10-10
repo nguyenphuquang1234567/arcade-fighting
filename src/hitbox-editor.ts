@@ -8,7 +8,7 @@ const who=el<HTMLSelectElement>('who'),action=el<HTMLSelectElement>('action'),fr
 let edits:HitEdits=structuredClone(source),selected=0,sequence=0;
 try{const local=JSON.parse(localStorage.getItem(storage)??'{}');if(!validateHitboxes(local))edits={...edits,...local}}catch{}
 const requestedCharacter=new URLSearchParams(location.search).get('character');
-if(requestedCharacter&&[...who.options].some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
+if(requestedCharacter&&Array.from(who.options).some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
 for(const a of strikes)action.add(new Option(a,a));
 const key=()=>`${who.value}/${action.value}/${Number(frame.value)-1}`;
 const boxes=()=>edits[key()]??defaultHitboxes(action.value,Number(frame.value)-1);
