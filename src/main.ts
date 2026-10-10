@@ -8,8 +8,10 @@ const combat=new Combat();let mode='bot',paused=false,sound=true,showBoxes=false
 const keys=new Set<string>(),pressed=new Set<string>();
 window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);if(e.code==='Escape'&&!e.repeat){if(paused)quitMatch();else togglePause()};if(e.code==='KeyH'&&!e.repeat)toggleBoxes()});window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressed.clear();if(combat.phase==='fight'&&!paused)togglePause()});
 const touchPointers=new Map<number,string>();
-const touchHeld=(code:string)=>[...touchPointers.values()].includes(code);
-function clearTouch(){touchPointers.clear();document.querySelectorAll('[data-touch]').forEach(b=>b.classList.remove('held'))}
+const stickKeys=new Set<string>();
+let stickPointer:number|undefined;
+const touchHeld=(code:string)=>stickKeys.has(code)||[...touchPointers.values()].includes(code);
+function clearTouch(){touchPointers.clear();stickKeys.clear();stickPointer=undefined;$('stick-knob').style.transform='translate(-50%,-50%)';document.querySelectorAll('[data-touch]').forEach(b=>b.classList.remove('held'))}
 for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-touch]'))){
  button.addEventListener('pointerdown',e=>{
   e.preventDefault();if(combat.phase!=='fight'||paused)return;
@@ -20,9 +22,27 @@ for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[da
  button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);
  button.addEventListener('contextmenu',e=>e.preventDefault());
 }
+const stick=$('touch-stick');
+function moveStick(e:PointerEvent){
+ const rect=stick.getBoundingClientRect(),radius=rect.width/2,max=radius*.57;
+ let dx=e.clientX-rect.left-radius,dy=e.clientY-rect.top-rect.height/2;
+ const distance=Math.hypot(dx,dy);if(distance>max){dx*=max/distance;dy*=max/distance}
+ $('stick-knob').style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+ const wasJump=stickKeys.has('KeyW');stickKeys.clear();
+ const dead=max*.25;
+ if(dx>dead)stickKeys.add('KeyD');else if(dx<-dead)stickKeys.add('KeyA');
+ if(dy>dead)stickKeys.add('KeyS');else if(dy<-dead){stickKeys.add('KeyW');if(!wasJump)pressed.add('KeyW')}
+}
+stick.addEventListener('pointerdown',e=>{
+ e.preventDefault();if(stickPointer!==undefined||combat.phase!=='fight'||paused)return;
+ stickPointer=e.pointerId;stick.setPointerCapture(e.pointerId);moveStick(e);
+});
+stick.addEventListener('pointermove',e=>{if(e.pointerId===stickPointer){e.preventDefault();moveStick(e)}});
+const releaseStick=(e:PointerEvent)=>{if(e.pointerId!==stickPointer)return;stickPointer=undefined;stickKeys.clear();$('stick-knob').style.transform='translate(-50%,-50%)'};
+stick.addEventListener('pointerup',releaseStick);stick.addEventListener('pointercancel',releaseStick);stick.addEventListener('lostpointercapture',releaseStick);stick.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('blur',clearTouch);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouch()});
-function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1])||touchHeld(m[1]))-Number(keys.has(m[0])||touchHeld(m[0])),jump:pressed.has(m[2]),guard:keys.has(m[3])||touchHeld(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
+function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1])||touchHeld(m[1]))-Number(keys.has(m[0])||touchHeld(m[0])),jump:pressed.has(m[2])||stickKeys.has(m[2]),guard:keys.has(m[3])||touchHeld(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
 
 class Dojo extends Phaser.Scene{
  sprites:Phaser.GameObjects.Sprite[]=[];shadows:Phaser.GameObjects.Ellipse[]=[];music?:Phaser.Sound.BaseSound;boxGraphics?:Phaser.GameObjects.Graphics;
