@@ -93,5 +93,17 @@ updateMenuHelp();
 document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(button=>button.onclick=()=>{mode=button.dataset.mode!;updateMenuHelp();$('p2-controls').hidden=mode!=='local';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b===button));$('p2-help').textContent=mode==='local'?'P2: Arrows move / guard · 1 / 2 / 3 / 0 attacks':'Keep your stamina. A patient fighter survives.'});
 $('start').onclick=()=>{if(!scene)return;keys.clear();pressed.clear();combat.start(mode==='training');paused=false;$('pause-menu').hidden=true;$('pause').textContent='ESC / PAUSE';$('overlay').classList.add('hidden');$('status').textContent=mode==='training'?'TRAINING · INFINITE HEALTH':mode==='bot'?'YOU VS EMBER AI':'LOCAL DUEL';if(sound&&!scene.music?.isPlaying)scene.music?.play()};
 $('sound').onclick=()=>{sound=!sound;$('sound').textContent=sound?'SOUND ON':'SOUND OFF';if(sound)scene?.music?.play();else scene?.music?.pause()};
-new Phaser.Game({type:Phaser.AUTO,parent:'game',width:1280,height:720,backgroundColor:'#251b2d',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:Dojo,render:{antialias:true}});
+const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:1280,height:720,backgroundColor:'#251b2d',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:Dojo,render:{antialias:true}});
 Object.assign(window,{__dojo:{combat,get collisionBoxes(){return combat.fighters.map(f=>({hurt:getHurtboxes(f,attacks[f.action]),hit:getHitboxes(f,attacks[f.action])}));},get showBoxes(){return showBoxes;},get paused(){return paused},get animationState(){return scene?.sprites.map(sprite=>({key:sprite.texture.key,frames:scene.anims.get(sprite.texture.key)?.frames.length,fps:scene.anims.get(sprite.texture.key)?.frameRate,frame:Number(sprite.frame.name)+1}))}}});
+
+// CSS can change the arena size after the browser's initial rotation event.
+let layoutFrame=0;
+function refreshLayout(){
+ cancelAnimationFrame(layoutFrame);
+ layoutFrame=requestAnimationFrame(()=>game.scale.refresh());
+}
+new ResizeObserver(refreshLayout).observe($('game'));
+window.addEventListener('resize',refreshLayout);
+window.visualViewport?.addEventListener('resize',refreshLayout);
+window.addEventListener('orientationchange',()=>{clearTouch();refreshLayout()});
+screen.orientation?.addEventListener('change',()=>{clearTouch();refreshLayout()});
