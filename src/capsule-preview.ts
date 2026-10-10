@@ -1,4 +1,4 @@
-import {frameCounts,spriteFile} from './fighters';
+import {frameCounts,frameCount,spriteFile} from './fighters';
 import type {Action} from './combat';
 import sourceEdits from './capsule-overrides.json';
 import {validateCapsules,type CapsuleEdits} from './capsule-model';
@@ -19,7 +19,8 @@ if(!localStorage.getItem(emberImportKey)){
  for(const [key,value] of Object.entries(normalize(sourceEdits)))if(key.startsWith('ember/'))edits[key]=value;
  localStorage.setItem(storageKey,JSON.stringify(edits));localStorage.setItem(emberImportKey,'done');
 }
-const selectedKey=()=>`${who.value}/${action.value}/${Number(frame.value)-1}`;
+const authoredFrame=()=>who.value==='moon'&&action.value==='run'?Math.floor((Number(frame.value)-1)*8/10):Number(frame.value)-1;
+const selectedKey=()=>`${who.value}/${action.value}/${authoredFrame()}`;
 let selected=0;
 const capsules=()=>edits[selectedKey()]??[{x:0,y:0,width:130,part:'body'},head()];
 const angle=document.querySelector<HTMLInputElement>('#angle')!;
@@ -56,17 +57,17 @@ const finish=(e:PointerEvent)=>{if(dragging?.id!==e.pointerId)return;dragging=un
 canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.style.cursor='grab';
 
 async function draw(){
- const token=++sequence,a=action.value as Action,c=who.value as 'moon'|'ember';frame.max=String(frameCounts[a]);frame.value=String(Math.max(1,Math.min(frameCounts[a],Number(frame.value))));const i=Number(frame.value)-1;controls();
+ const token=++sequence,a=action.value as Action,c=who.value as 'moon'|'ember';frame.max=String(frameCount(c,a));frame.value=String(Math.max(1,Math.min(frameCount(c,a),Number(frame.value))));const i=Number(frame.value)-1;controls();
  const image=new Image();image.src=`/characters/${c}/${spriteFile(c,a)}`;await image.decode();if(token!==sequence)return;
  ctx.clearRect(0,0,512,512);ctx.drawImage(image,i*512,0,512,512,0,0,512,512);
- const p=hurtboxPoses[c][a][i].map(v=>v*3.2);visible=[];
+ const p=hurtboxPoses[c][a][authoredFrame()].map(v=>v*3.2);visible=[];
  for(const [index,offset] of capsules().entries()){const r=offset.width/2;
  // One rounded capsule remains near the torso, rather than following an extended kicking foot.
  let x1=p[2],y1=p[1]+65,x2=p[2],y2=Math.max(p[7],p[11])-r;
  if(a==='ground_slide'&&i===0){x1=p[0]+40;y1=p[3];x2=Math.max(p[6],p[10])-r;y2=p[3];}
  if(y2<y1&&a!=='ground_slide')y2=y1;
  if(offset.part==='head'){x1=x2=p[0];y1=p[1]-8;y2=p[1]+8;}
- const key=`${c}/${a}/${i}`;
+ const key=selectedKey();
  x1+=offset.x;x2+=offset.x;y1+=offset.y;y2+=offset.y;
  const radians=(offset.angle??0)*Math.PI/180,cx=(x1+x2)/2,cy=(y1+y2)/2;
  const rotate=(x:number,y:number)=>({x:cx+(x-cx)*Math.cos(radians)-(y-cy)*Math.sin(radians),y:cy+(x-cx)*Math.sin(radians)+(y-cy)*Math.cos(radians)});

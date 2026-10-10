@@ -1,0 +1,1 @@
+Experimental 13-frame run previews generated with built-in imagegen using each shipped idle frame 0 as character reference. 5x3 raw layout, 13 occupied cells. Preview 10 FPS. Not integrated into game. Visual review: identity closer to idle, but stride phases repeat and are not yet production-ready.

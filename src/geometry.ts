@@ -1,5 +1,5 @@
 import type { Action, Fighter } from './combat';
-import { attackFrame, frameCounts } from './fighters';
+import { attackFrame, frameCounts, frameCount } from './fighters';
 import hitEdits from './hitbox-overrides.json';
 import {defaultHitboxes,type HitEdits} from './hitbox-model';
 import { capsulesFor } from './hurtcapsule';
@@ -34,7 +34,7 @@ export function poseFrame(f: Fighter, timing?: Timing): number {
     if (f.action === 'ground_slide') return f.time < timing.activeEnd ? 0 : 1;
     return attackFrame(f.time, timing.active, timing.duration, frameCounts[f.action]);
   }
-  const count=frameCounts[f.action];
+  const count=frameCount(f.character,f.action);
   const frame=Math.floor(Math.max(0,f.time)*(POSE_FPS[f.action]??6));
   return ['idle','walk','run'].includes(f.action)?frame%count:Math.min(count-1,frame);
 }
@@ -43,7 +43,10 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
- return capsulesFor(f.character,f.action,poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
+ // Reuse the existing eight authored capsule poses across the experimental run cycle.
+ const visualFrame=poseFrame(f,timing);
+ const hurtFrame=f.character==='moon'&&f.action==='run'?Math.floor(visualFrame*8/10):visualFrame;
+ return capsulesFor(f.character,f.action,hurtFrame).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
 export function polygonCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{
  return collision(hitboxes,getHurtboxes(f,timing));
