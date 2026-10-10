@@ -54,3 +54,6 @@
 @media (orientation:landscape) and (max-height:600px) and (max-width:1000px), (orientation:landscape) and (pointer:coarse){
  footer{display:flex;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:5;padding:0;border:0}footer #boxes{display:none}footer #pause{padding:7px 10px;background:#17111dcc;font-size:10px}
 }
+@media (orientation:landscape) and (max-height:600px) and (max-width:1000px), (orientation:landscape) and (pointer:coarse){
+ .arena-stage #game canvas{position:relative;left:-20px}
+}
