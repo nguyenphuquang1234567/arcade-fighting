@@ -43,7 +43,7 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
- return capsulesFor(f.character,f.action,poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
+ return capsulesFor(f.collisionSkin??f.character,f.action,f.collisionSkin&&f.action==='kick'&&timing?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
 export function polygonCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{
  return collision(hitboxes,getHurtboxes(f,timing));
@@ -85,8 +85,8 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
 }
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   if (!timing || f.hp <= 0 || f.time < timing.active || f.time >= timing.activeEnd) return [];
-  const frame = poseFrame(f, timing);
-  const boxes=(hitEdits as HitEdits)[`${f.character}/${f.action}/${frame}`]??defaultHitboxes(f.action,frame);
+  const frame = f.collisionSkin&&f.action==='kick'?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing);
+  const boxes=(hitEdits as HitEdits)[`${f.collisionSkin??f.character}/${f.action}/${frame}`]??defaultHitboxes(f.action,frame);
   return boxes.map(b=>worldBox(f,b));
 }
 export function collision(hitboxes: Box[], hurtboxes: HurtPolygon[]): Contact | undefined {

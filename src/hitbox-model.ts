@@ -1,4 +1,5 @@
 import {frameCounts} from './fighters';
+import {editorFrameCount,type EditorCharacter} from './yuki-assets';
 export type HitBox={x:number,y:number,width:number,height:number};
 export type HitEdits=Record<string,HitBox[]>;
 export const strikes=['attack','kick','sword_attack','ground_slide'] as const;
@@ -9,7 +10,7 @@ export function defaultHitboxes(action:string,frame:number):HitBox[]{
 export function validateHitboxes(data:unknown):string|undefined{
  if(!data||typeof data!=='object'||Array.isArray(data))return 'Dữ liệu không hợp lệ';
  for(const [key,boxes] of Object.entries(data)){
- const [who,a,f,...rest]=key.split('/');if(rest.length||!['moon','ember'].includes(who)||!strikes.includes(a as typeof strikes[number])||!/^\d+$/.test(f)||Number(f)>=frameCounts[a as keyof typeof frameCounts])return `Frame không hợp lệ: ${key}`;
+ const [who,a,f,...rest]=key.split('/');if(rest.length||!['moon','ember','yuki'].includes(who)||!strikes.includes(a as typeof strikes[number])||!/^\d+$/.test(f)||Number(f)>=editorFrameCount(who as EditorCharacter,a as keyof typeof frameCounts))return `Frame không hợp lệ: ${key}`;
  if(!Array.isArray(boxes)||boxes.length>16)return `Tối đa 16 hitbox: ${key}`;
  for(const b of boxes)if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>512||b.y+b.height>512)return `Hitbox phải nằm trong frame: ${key}`;
  }

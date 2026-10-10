@@ -1,10 +1,11 @@
+import {poseIndex,type EditorCharacter} from './yuki-assets';
 import saved from './capsule-overrides.json';
 import {hurtboxPoses} from './hurtbox-poses';
 import type {Action} from './combat';
 import type {CapsuleEdit,CapsuleEdits} from './capsule-model';
 import type {HurtPolygon} from './collision-types';
-export function capsulePolygon(character:'moon'|'ember',action:Action,frame:number,edit:CapsuleEdit):HurtPolygon{
- const p=hurtboxPoses[character][action][frame].map(v=>v*3.2),r=edit.width/2;
+export function capsulePolygon(character:EditorCharacter,action:Action,frame:number,edit:CapsuleEdit):HurtPolygon{
+ const p=hurtboxPoses[character==='yuki'?'moon':character][action][poseIndex(character,action,frame)].map(v=>v*3.2),r=edit.width/2;
  let x1=p[2],y1=p[1]+65,x2=p[2],y2=Math.max(p[7],p[11])-r;
  if(action==='ground_slide'&&frame===0){x1=p[0]+40;y1=p[3];x2=Math.max(p[6],p[10])-r;y2=p[3];}
  if(y2<y1&&action!=='ground_slide')y2=y1;
@@ -17,7 +18,7 @@ export function capsulePolygon(character:'moon'|'ember',action:Action,frame:numb
  for(const [x,y,start] of [[x1,y1,theta+Math.PI/2],[x2,y2,theta-Math.PI/2]])for(let i=0;i<=24;i++){const a=start+i*Math.PI/24;points.push(rotate(x+r*Math.cos(a),y+r*Math.sin(a)))}
  return {region:edit.part==='head'?'head':'body',points};
 }
-export function capsulesFor(character:'moon'|'ember',action:Action,frame:number):HurtPolygon[]{
+export function capsulesFor(character:EditorCharacter,action:Action,frame:number):HurtPolygon[]{
  const edits=(saved as CapsuleEdits)[`${character}/${action}/${frame}`]??[{x:0,y:0,width:130,part:'body'},{x:0,y:0,width:70,part:'head'}];
  return edits.map(edit=>capsulePolygon(character,action,frame,edit));
 }

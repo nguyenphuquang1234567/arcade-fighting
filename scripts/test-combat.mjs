@@ -7,7 +7,7 @@ import ts from 'typescript';
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'shadow-combat-'));
 try {
  fs.writeFileSync(path.join(temp,'package.json'),'{"type":"commonjs"}');
- for(const name of ['hitbox-model','hurtcapsule','capsule-model','combat','geometry','fighters','hurtbox-poses','collision-types'])fs.writeFileSync(path.join(temp,name+'.js'),ts.transpileModule(fs.readFileSync('src/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText);
+ for(const name of ['yuki-assets','hitbox-model','hurtcapsule','capsule-model','combat','geometry','fighters','hurtbox-poses','collision-types'])fs.writeFileSync(path.join(temp,name+'.js'),ts.transpileModule(fs.readFileSync('src/'+name+'.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText);
  for(const name of ['capsule-overrides','hitbox-overrides'])fs.copyFileSync('src/'+name+'.json',path.join(temp,name+'.json'));
  const require=createRequire(import.meta.url);
  const {Combat,attacks}=require(path.join(temp,'combat.js'));
@@ -38,5 +38,7 @@ try {
  check('training attacks and guards never consume energy',()=>{const c=new Combat();c.start(true);const n={move:0,jump:false,guard:false};c.update(0,[{...n,attack:'sword_attack'},n]);assert.equal(c.fighters[0].energy,100);assert.equal(c.fighters[0].action,'sword_attack');const d=setup('attack');d.training=true;d.update(0,[n,{...n,guard:true}]);assert.equal(d.fighters[1].energy,100);assert.equal(d.fighters[1].hp,100);});
  check('lethal blocked damage enters death and ends the round',()=>{const c=setup('attack');const b=c.fighters[1];b.hp=1;c.update(0,[neutral,{...neutral,guard:true}]);assert.equal(b.hp,0);assert.equal(b.action,'death');assert.equal(b.guard,false);assert.equal(c.phase,'roundover');});
  check('training guard stays guarding without entering hurt',()=>{const c=setup('attack');c.training=true;const b=c.fighters[1];c.update(0,[neutral,{...neutral,guard:true}]);assert.equal(b.hp,100);assert.equal(b.energy,100);assert.equal(b.action,'idle');assert.equal(b.guard,true);});
+ check('Yuki editors accept nine kick frames and runtime uses independent capsules',()=>{const {validateHitboxes}=require(path.join(temp,'hitbox-model.js'));const {validateCapsules}=require(path.join(temp,'capsule-model.js'));assert.equal(validateHitboxes({'yuki/kick/8':[]}),undefined);assert.ok(validateHitboxes({'yuki/kick/9':[]}));assert.equal(validateCapsules({'yuki/kick/8':[{x:0,y:0,width:100,part:'body'}]}),undefined);const c=setup('kick');c.fighters[0].collisionSkin='yuki';assert.ok(getHurtboxes(c.fighters[0],attacks.kick).length);assert.ok(getHitboxes(c.fighters[0],attacks.kick).length);});
+ check('death animation clock advances after round and match end',()=>{for(const phase of ['roundover','over']){const c=setup('attack');c.fighters[0].action='death';c.fighters[0].time=0;c.phase=phase;c.delay=3;c.update(.1,[neutral,neutral]);assert.equal(c.fighters[0].time,.1);}});
  console.log(`${count} combat checks passed`);
 }finally{fs.rmSync(temp,{recursive:true,force:true});}
