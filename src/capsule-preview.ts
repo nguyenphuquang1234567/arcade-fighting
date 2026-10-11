@@ -34,6 +34,16 @@ if(!localStorage.getItem(emberImportKey)){
  for(const [key,value] of Object.entries(normalize(sourceEdits)))if(key.startsWith('ember/'))edits[key]=value;
  localStorage.setItem(storageKey,JSON.stringify(edits));localStorage.setItem(emberImportKey,'done');
 }
+// Import matching jump capsules once so stale drafts cannot overwrite the source update.
+const jumpMatchKey=storageKey+'-an-yuki-jump-match-v1';
+if(!localStorage.getItem(jumpMatchKey)){
+ localStorage.setItem(jumpMatchKey+'-backup',localStorage.getItem(storageKey)??'{}');
+ for(const character of ['an','yuki'])for(let i=0;i<2;i++){
+  const key=`${character}/jump/${i}`;
+  edits[key]=structuredClone((sourceEdits as CapsuleEdits)[key]);
+ }
+ draftRun();localStorage.setItem(jumpMatchKey,'done');
+}
 const authoredFrame=()=>Number(frame.value)-1;
 const selectedKey=()=>`${who.value}/${action.value}/${authoredFrame()}`;
 let selected=0;
