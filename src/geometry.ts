@@ -30,7 +30,15 @@ export function overlap(a: Box, b: Box): Box | undefined {
 }
 export type Contact = Box & { region: BodyRegion };
 export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:20,walk:5};
+export function attackTiming<T extends Timing>(f:Fighter,timing:T,action:Action=f.action):T{
+ if(f.collisionSkin&&action==='attack'&&timing.duration!==.28){
+  const ratio=.28/timing.duration;
+  return {...timing,duration:.28,active:timing.active*ratio,activeEnd:timing.activeEnd*ratio};
+ }
+ return timing;
+}
 export function poseFrame(f: Fighter, timing?: Timing): number {
+  if(timing)timing=attackTiming(f,timing);
   if (timing) {
     if (f.action === 'ground_slide') return f.time < timing.activeEnd ? 0 : 1;
     return attackFrame(f.time, timing.active, timing.duration, frameCounts[f.action]);
@@ -94,6 +102,7 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
 }
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   if (!timing || f.hp <= 0) return [];
+  timing=attackTiming(f,timing);
   // Nine-frame anime kicks: frame4 starts at .12, frame7 ends at .304.
   // Keep animation timing independent from the edited contact window.
   const animeKick=!!f.collisionSkin&&f.action==='kick';
