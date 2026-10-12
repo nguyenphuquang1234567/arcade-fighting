@@ -1,6 +1,10 @@
 import {frameCounts} from './fighters';
 import {editorFrameCount,type EditorCharacter} from './yuki-assets';
-export type HitBox={x:number,y:number,width:number,height:number};
+export type HitBox={x:number,y:number,width:number,height:number,angle?:number};
+export function hitboxCorners(b:HitBox){
+ const r=(b.angle??0)*Math.PI/180,c=Math.cos(r),s=Math.sin(r),cx=b.x+b.width/2,cy=b.y+b.height/2;
+ return [[-b.width/2,-b.height/2],[b.width/2,-b.height/2],[b.width/2,b.height/2],[-b.width/2,b.height/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));
+}
 export type HitEdits=Record<string,HitBox[]>;
 export const strikes=['attack','kick','sword_attack','ground_slide'] as const;
 export function defaultHitboxes(action:string,frame:number):HitBox[]{
@@ -12,6 +16,6 @@ export function validateHitboxes(data:unknown):string|undefined{
  for(const [key,boxes] of Object.entries(data)){
  const [who,a,f,...rest]=key.split('/');if(rest.length||!['moon','ember','yuki','an'].includes(who)||!strikes.includes(a as typeof strikes[number])||!/^\d+$/.test(f)||Number(f)>=editorFrameCount(who as EditorCharacter,a as keyof typeof frameCounts))return `Frame không hợp lệ: ${key}`;
  if(!Array.isArray(boxes)||boxes.length>16)return `Tối đa 16 hitbox: ${key}`;
- for(const b of boxes)if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.x<0||b.y<0||b.width<=0||b.height<=0||b.x+b.width>512||b.y+b.height>512)return `Hitbox phải nằm trong frame: ${key}`;
+ for(const b of boxes)if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.width<=0||b.height<=0||(b.angle!==undefined&&(!Number.isFinite(b.angle)||Math.abs(b.angle)>180))||hitboxCorners(b).some(p=>p.x<-.000001||p.y<-.000001||p.x>512.000001||p.y>512.000001))return `Hitbox phải nằm trong frame: ${key}`;
  }
 }

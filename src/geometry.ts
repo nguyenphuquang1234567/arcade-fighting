@@ -1,12 +1,12 @@
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts, frameCount } from './fighters';
 import hitEdits from './hitbox-overrides.json';
-import {defaultHitboxes,type HitEdits} from './hitbox-model';
+import {defaultHitboxes,hitboxCorners,type HitEdits} from './hitbox-model';
 import { capsulesFor } from './hurtcapsule';
 import type {Point,BodyRegion,HurtPolygon} from './collision-types';
 export type {Point,BodyRegion,HurtPolygon} from './collision-types';
 
-export type Box = { x: number; y: number; width: number; height: number };
+export type Box = { x: number; y: number; width: number; height: number; angle?:number };
 export type Strike = 'attack' | 'kick' | 'sword_attack' | 'ground_slide';
 export type Timing = { active: number; activeEnd: number; duration: number };
 // Coordinates are authored in the actual 512px sprite cells, then transformed
@@ -19,6 +19,7 @@ export function worldBox(f: Fighter, b: Box): Box {
     x: f.x + (f.face > 0 ? b.x - 256 : 256 - b.x - b.width) * SPRITE_SCALE,
     y: SPRITE_BASELINE + f.y + (b.y - 512) * SPRITE_SCALE,
     width: b.width * SPRITE_SCALE, height: b.height * SPRITE_SCALE,
+    ...(b.angle?{angle:b.angle*f.face}:{}),
   };
 }
 export function overlap(a: Box, b: Box): Box | undefined {
@@ -55,6 +56,14 @@ export function polygonBounds(points:Point[]):Box{
 // Clip the actual polygon against the attack rectangle. An overlapping AABB
 // alone is insufficient: empty corners and stance gaps must not take damage.
 function clipContact(hit:Box,poly:HurtPolygon):{box:Box;area:number}|undefined{
+  if(hit.angle){
+    const r=-hit.angle*Math.PI/180,c=Math.cos(r),s=Math.sin(r),cx=hit.x+hit.width/2,cy=hit.y+hit.height/2;
+    const rotate=(p:Point)=>({x:cx+(p.x-cx)*c-(p.y-cy)*s,y:cy+(p.x-cx)*s+(p.y-cy)*c});
+    const contact=clipContact({...hit,angle:0},{...poly,points:poly.points.map(rotate)});
+    if(!contact)return;
+    const inverse=(p:Point)=>({x:cx+(p.x-cx)*c+(p.y-cy)*s,y:cy-(p.x-cx)*s+(p.y-cy)*c});
+    return {area:contact.area,box:polygonBounds(hitboxCorners(contact.box).map(inverse))};
+  }
   if(!overlap(hit,polygonBounds(poly.points)))return;
   let points=poly.points;
   for(const [axis,value,greater] of [
@@ -84,7 +93,12 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
  return outer.area-holes>1e-6?{...outer.box,region:poly.region}:undefined;
 }
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
-  if (!timing || f.hp <= 0 || f.time < timing.active || f.time >= timing.activeEnd) return [];
+  if (!timing || f.hp <= 0) return [];
+  // Nine-frame anime kicks: frame4 starts at .12, frame7 ends at .304.
+  // Keep animation timing independent from the edited contact window.
+  const animeKick=!!f.collisionSkin&&f.action==='kick';
+  const active=f.action==='kick'?.12:timing.active,activeEnd=animeKick?.304:timing.activeEnd;
+  if(f.time<active||f.time>=activeEnd)return [];
   const frame = f.collisionSkin&&f.action==='kick'?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing);
   const boxes=(hitEdits as HitEdits)[`${f.collisionSkin??f.character}/${f.action}/${frame}`]??defaultHitboxes(f.action,frame);
   return boxes.map(b=>worldBox(f,b));

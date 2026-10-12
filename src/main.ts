@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {Combat,bot,attacks,ANIME_DEATH_FPS,ANIME_DEATH_FRAMES,type Action,type Input} from './combat';
 import './style.css';
+import {hitboxCorners} from './hitbox-model';
 import {getHitboxes, getHurtboxes, SPRITE_SCALE, SPRITE_BASELINE, poseFrame} from './geometry';
 import {fighters, actions, frameCounts, frameCount, spriteFile, attackFrame} from './fighters';
 const $=(id:string)=>document.getElementById(id)!;
@@ -48,7 +49,7 @@ const releaseStick=(e:PointerEvent)=>{if(e.pointerId!==stickPointer)return;stick
 stick.addEventListener('pointerup',releaseStick);stick.addEventListener('pointercancel',releaseStick);stick.addEventListener('lostpointercapture',releaseStick);stick.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('blur',clearTouch);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouch()});
-function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1])||touchHeld(m[1]))-Number(keys.has(m[0])||touchHeld(m[0])),jump:pressed.has(m[2])||stickKeys.has(m[2]),guard:keys.has(m[3])||touchHeld(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
+function input(second=false):Input{const m=second?['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Digit1','Digit2','Digit3','Digit0']:['KeyA','KeyD','KeyW','KeyS','KeyJ','KeyK','KeyL','KeyU'];return{move:Number(keys.has(m[1])||touchHeld(m[1]))-Number(keys.has(m[0])||touchHeld(m[0])),jump:keys.has(m[2])||touchHeld(m[2]),guard:keys.has(m[3])||touchHeld(m[3]),attack:pressed.has(m[4])?'attack':pressed.has(m[5])?'kick':pressed.has(m[6])?'sword_attack':pressed.has(m[7])?'ground_slide':undefined}}
 
 class Dojo extends Phaser.Scene{
  pendingResult?:string;resultElapsed=0;
@@ -72,7 +73,7 @@ class Dojo extends Phaser.Scene{
        graphics.closePath();if(!polygon.holes?.length)graphics.fillPath();graphics.lineStyle(1.5,color,.9).strokePath();
        for(const hole of polygon.holes??[]){graphics.beginPath();hole.forEach((p,i)=>i?graphics.lineTo(p.x,p.y):graphics.moveTo(p.x,p.y));graphics.closePath().strokePath();}
      }
-     for(const b of getHitboxes(fighter,timing))graphics.fillStyle(0xff625c,.25).lineStyle(2,0xff625c,1).fillRect(b.x,b.y,b.width,b.height).strokeRect(b.x,b.y,b.width,b.height);
+     for(const b of getHitboxes(fighter,timing)){graphics.fillStyle(0xff625c,.25).lineStyle(2,0xff625c,1).beginPath();hitboxCorners(b).forEach((p,i)=>i?graphics.lineTo(p.x,p.y):graphics.moveTo(p.x,p.y));graphics.closePath().fillPath().strokePath();}
    }
  }
 }
