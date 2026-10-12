@@ -255,5 +255,53 @@
       "height": 70,
       "angle": -19
     }
+  ],
+  "an/attack/6": [
+    {
+      "x": 300,
+      "y": 199,
+      "width": 145,
+      "height": 45
+    }
+  ],
+  "an/attack/7": [
+    {
+      "x": 300,
+      "y": 199,
+      "width": 145,
+      "height": 45
+    }
+  ],
+  "an/attack/8": [
+    {
+      "x": 290,
+      "y": 192,
+      "width": 145,
+      "height": 45
+    }
+  ],
+  "yuki/attack/6": [
+    {
+      "x": 300,
+      "y": 199,
+      "width": 145,
+      "height": 45
+    }
+  ],
+  "yuki/attack/7": [
+    {
+      "x": 311,
+      "y": 193,
+      "width": 145,
+      "height": 45
+    }
+  ],
+  "yuki/attack/8": [
+    {
+      "x": 315,
+      "y": 187,
+      "width": 145,
+      "height": 45
+    }
   ]
 }

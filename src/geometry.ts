@@ -97,7 +97,10 @@ export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   // Nine-frame anime kicks: frame4 starts at .12, frame7 ends at .304.
   // Keep animation timing independent from the edited contact window.
   const animeKick=!!f.collisionSkin&&f.action==='kick';
-  const active=f.action==='kick'?.12:timing.active,activeEnd=animeKick?.304:timing.activeEnd;
+  const animePunch=!!f.collisionSkin&&f.action==='attack';
+  const frameDuration=(timing.duration-timing.active)/6;
+  const active=animePunch?timing.active+2*frameDuration:f.action==='kick'?.12:timing.active;
+  const activeEnd=animePunch?timing.active+5*frameDuration:animeKick?.304:timing.activeEnd;
   if(f.time<active||f.time>=activeEnd)return [];
   const frame = f.collisionSkin&&f.action==='kick'?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing);
   const boxes=(hitEdits as HitEdits)[`${f.collisionSkin??f.character}/${f.action}/${frame}`]??defaultHitboxes(f.action,frame);
