@@ -63,6 +63,12 @@ if(!localStorage.getItem(fightersJumpAlignKey)){
  for(const who of ['moon','ember'])edits[`${who}/jump/1`]=structuredClone((sourceEdits as CapsuleEdits)[`${who}/jump/1`]);
  draftRun();localStorage.setItem(fightersJumpAlignKey,'done');
 }
+const anIdleAlignKey=storageKey+'-an-idle-aligned-v1';
+if(!localStorage.getItem(anIdleAlignKey)){
+ localStorage.setItem(anIdleAlignKey+'-backup',localStorage.getItem(storageKey)??'{}');
+ edits['an/idle/1']=structuredClone((sourceEdits as CapsuleEdits)['an/idle/1']);
+ draftRun();localStorage.setItem(anIdleAlignKey,'done');
+}
 const authoredFrame=()=>Number(frame.value)-1;
 const selectedKey=()=>`${who.value}/${action.value}/${authoredFrame()}`;
 let selected=0;
