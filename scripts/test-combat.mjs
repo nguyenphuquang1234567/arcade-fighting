@@ -15,6 +15,7 @@ try {
  const neutral={move:0,jump:false,guard:false};
  const setup=(action,distance=90)=>{const c=new Combat();c.start();const [a,b]=c.fighters;a.x=500;b.x=500+distance;a.face=1;b.face=-1;a.action=action;a.duration=attacks[action].duration;a.time=attacks[action].active;return c;};
  let count=0;const check=(name,fn)=>{fn();count++;console.log('PASS',name)};
+ check('anime death finishes before next round even if delay expires',()=>{const c=new Combat();c.start();const f=c.fighters[1];f.collisionSkin='yuki';f.action='death';f.hp=0;f.time=0;c.phase='roundover';c.delay=0;c.update(1.75,[neutral,neutral]);assert.equal(c.phase,'roundover');assert.equal(c.deathAnimationComplete,false);c.update(.25,[neutral,neutral]);assert.equal(c.phase,'fight');assert.equal(c.round,2);});
  for(const action of ['attack','kick','sword_attack','ground_slide']){
   check(action+' active window and overlap',()=>{const c=setup(action,action==='ground_slide'?140:90);const [a,b]=c.fighters;const timing=attacks[action];a.time=timing.active-.001;assert.equal(getHitboxes(a,timing).length,0);a.time=timing.active;assert.ok(getHitboxes(a,timing).length);c.update(0,[neutral,neutral]);assert.equal(b.hp,100-timing.damage);c.update(.01,[neutral,neutral]);assert.equal(b.hp,100-timing.damage);});
   check(action+' rejects behind / out of range / airborne target',()=>{for(const mode of ['behind','far','air']){const c=setup(action,mode==='behind'?-90:mode==='far'?350:90);if(mode==='air')c.fighters[1].y=-300;c.update(0,[neutral,neutral]);assert.equal(c.fighters[1].hp,100,mode);}});
