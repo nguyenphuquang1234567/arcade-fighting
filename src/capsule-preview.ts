@@ -44,6 +44,19 @@ if(!localStorage.getItem(jumpMatchKey)){
  }
  draftRun();localStorage.setItem(jumpMatchKey,'done');
 }
+// Update only the shifted Yuki jump frame; preserve other editor drafts.
+const jumpAlignKey=storageKey+'-yuki-jump-aligned-v1';
+if(!localStorage.getItem(jumpAlignKey)){
+ localStorage.setItem(jumpAlignKey+'-backup',localStorage.getItem(storageKey)??'{}');
+ edits['yuki/jump/1']=structuredClone((sourceEdits as CapsuleEdits)['yuki/jump/1']);
+ draftRun();localStorage.setItem(jumpAlignKey,'done');
+}
+const anJumpAlignKey=storageKey+'-an-jump-aligned-v1';
+if(!localStorage.getItem(anJumpAlignKey)){
+ localStorage.setItem(anJumpAlignKey+'-backup',localStorage.getItem(storageKey)??'{}');
+ edits['an/jump/1']=structuredClone((sourceEdits as CapsuleEdits)['an/jump/1']);
+ draftRun();localStorage.setItem(anJumpAlignKey,'done');
+}
 const authoredFrame=()=>Number(frame.value)-1;
 const selectedKey=()=>`${who.value}/${action.value}/${authoredFrame()}`;
 let selected=0;
