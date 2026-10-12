@@ -10,11 +10,11 @@ export const ANIME_DEATH_DURATION=2;
 export const ANIME_DEATH_FPS=ANIME_DEATH_FRAMES/ANIME_DEATH_DURATION;
 export class Combat{
  get deathAnimationComplete(){return this.fighters.every(f=>f.action!=='death'||f.time>=(f.collisionSkin?ANIME_DEATH_DURATION:frameCount(f.character,'death')/6))}
- training=false;fighters:Fighter[]=[];remaining=60;round=1;phase:'menu'|'fight'|'roundover'|'over'='menu';delay=0;onHit?:(x:number,y:number,blocked:boolean,action:Action)=>void;onAttack?:(action:Action)=>void;onRound?:(winner:number,finished:boolean)=>void;
+ training=false;fighters:Fighter[]=[];remaining=Infinity;roundElapsed=0;round=1;phase:'menu'|'fight'|'roundover'|'over'='menu';delay=0;onHit?:(x:number,y:number,blocked:boolean,action:Action)=>void;onAttack?:(action:Action)=>void;onRound?:(winner:number,finished:boolean)=>void;
  constructor(){this.resetFighters()}
- resetFighters(){this.fighters=[360,920].map((x,i)=>({character:i===0?'moon':'ember',x,y:0,vy:0,hp:MAX_HP,energy:100,face:i===0?1:-1,action:'idle',time:0,duration:0,hit:false,guard:false,wins:this.fighters[i]?.wins||0}));this.remaining=60;}
+ resetFighters(){this.fighters=[360,920].map((x,i)=>({character:i===0?'moon':'ember',x,y:0,vy:0,hp:MAX_HP,energy:100,face:i===0?1:-1,action:'idle',time:0,duration:0,hit:false,guard:false,wins:this.fighters[i]?.wins||0}));this.remaining=Infinity;this.roundElapsed=0;}
  start(training=false){this.training=training;this.fighters=[];this.round=1;this.resetFighters();this.phase='fight'}
- update(dt:number,inputs:Input[]){if(this.phase==='roundover'||this.phase==='over')for(const f of this.fighters)if(f.action==='death')f.time+=dt;if(this.phase==='roundover'){if(this.deathAnimationComplete){this.round++;this.resetFighters();this.phase='fight'}return}if(this.phase!=='fight')return;if(!this.training)this.remaining=Math.max(0,this.remaining-dt);
+ update(dt:number,inputs:Input[]){if(this.phase==='roundover'||this.phase==='over')for(const f of this.fighters)if(f.action==='death')f.time+=dt;if(this.phase==='roundover'){if(this.deathAnimationComplete){this.round++;this.resetFighters();this.phase='fight'}return}if(this.phase!=='fight')return;this.roundElapsed+=dt;
  this.fighters.forEach((f,i)=>{const input=inputs[i],enemy=this.fighters[1-i];f.time+=dt;f.energy=this.training?100:Math.min(100,f.energy+dt*13);if(f.action!=='death'&&f.duration>0&&f.time>=f.duration){f.action='idle';f.duration=0;f.time=0}if(f.duration===0)f.face=enemy.x>=f.x?1:-1;f.guard=input.guard&&f.y===0&&f.duration===0;
  if(f.duration===0){if(input.jump&&f.y===0){f.vy=-890;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attackTiming(f,attacks[input.attack]!,input.attack);if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
  if(f.duration===0){f.x+=input.move*(f.guard?90:290)*dt;const next=f.y<0||f.vy<0?'jump':input.move?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
@@ -41,7 +41,7 @@ export class Combat{
  }
 
  const [a,b]=this.fighters;const gap=b.x-a.x;if(Math.abs(gap)<65&&Math.abs(a.y-b.y)<90){const push=(65-Math.abs(gap))/2*(gap>=0?1:-1);a.x=Math.max(90,Math.min(1190,a.x-push));b.x=Math.max(90,Math.min(1190,b.x+push));}
- if(!this.training&&(a.hp<=0||b.hp<=0||this.remaining<=0)){const winner=a.hp===b.hp?-1:a.hp>b.hp?0:1;if(winner>=0)this.fighters[winner].wins++;const finished=this.fighters.some(f=>f.wins>=2);this.phase=finished?'over':'roundover';this.delay=0;this.onRound?.(winner,finished)}
+ if(!this.training&&(a.hp<=0||b.hp<=0)){const winner=a.hp===b.hp?-1:a.hp>b.hp?0:1;if(winner>=0)this.fighters[winner].wins++;const finished=this.fighters.some(f=>f.wins>=2);this.phase=finished?'over':'roundover';this.delay=0;this.onRound?.(winner,finished)}
  }
 }
 // Stronger bot: quicker approach and pressure, with imperfect defensive reactions.
