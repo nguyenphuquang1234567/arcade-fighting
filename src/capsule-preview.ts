@@ -109,7 +109,7 @@ canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.style.cursor='gra
 async function draw(){
  const token=++sequence,a=action.value as Action,c=who.value as EditorCharacter;frame.max=String(editorFrameCount(c,a));frame.value=String(Math.max(1,Math.min(editorFrameCount(c,a),Number(frame.value))));const i=Number(frame.value)-1;controls();
  const image=new Image();image.src=`/characters/${c}/${editorSprite(c,a)}`;await image.decode();if(token!==sequence)return;
- ctx.clearRect(0,0,512,512);ctx.drawImage(image,i*(['an','yuki'].includes(who.value)&&action.value==='death'?896:512),0,512,512,0,0,512,512);
+ const wideDeath=['an','yuki'].includes(who.value)&&action.value==='death';const columns=wideDeath?4:image.width/512;const cellWidth=wideDeath?896:512;ctx.clearRect(0,0,512,512);ctx.drawImage(image,(i%columns)*cellWidth,Math.floor(i/columns)*512,512,512,0,0,512,512);
  const p=hurtboxPoses[poseCharacter(c)][a][poseIndex(c,a,authoredFrame())].map(v=>v*3.2);visible=[];
  for(const [index,offset] of capsules().entries()){const r=offset.width/2;
  // One rounded capsule remains near the torso, rather than following an extended kicking foot.
