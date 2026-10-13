@@ -36,11 +36,11 @@ export class Combat{
    if(blocked&&!this.training)enemy.energy-=10;
    if(enemy.hp<=0){enemy.action='death';enemy.duration=10;enemy.time=0;enemy.hit=true;enemy.guard=false;}
    else if(!blocked){enemy.action='hurt';enemy.duration=.28;enemy.time=0;enemy.hit=true;}
-   enemy.x=Math.max(90,Math.min(1190,enemy.x+direction*(blocked?12:32)));
+   if(enemy.hp>0)enemy.x=Math.max(90,Math.min(1190,enemy.x+direction*(blocked?12:32)));
    this.onHit?.(contact.x+contact.width/2,contact.y+contact.height/2,blocked,f.action);
  }
 
- const [a,b]=this.fighters;const gap=b.x-a.x;if(Math.abs(gap)<65&&Math.abs(a.y-b.y)<90){const push=(65-Math.abs(gap))/2*(gap>=0?1:-1);a.x=Math.max(90,Math.min(1190,a.x-push));b.x=Math.max(90,Math.min(1190,b.x+push));}
+ const [a,b]=this.fighters;const gap=b.x-a.x;if(a.hp>0&&b.hp>0&&Math.abs(gap)<65&&Math.abs(a.y-b.y)<90){const push=(65-Math.abs(gap))/2*(gap>=0?1:-1);a.x=Math.max(90,Math.min(1190,a.x-push));b.x=Math.max(90,Math.min(1190,b.x+push));}
  if(!this.training&&(a.hp<=0||b.hp<=0)){const winner=a.hp===b.hp?-1:a.hp>b.hp?0:1;if(winner>=0)this.fighters[winner].wins++;const finished=this.fighters.some(f=>f.wins>=2);this.phase=finished?'over':'roundover';this.delay=0;this.onRound?.(winner,finished)}
  }
 }
