@@ -1,7 +1,7 @@
 import {frameCount} from './fighters';
 import { polygonCollision, getHitboxes, attackTiming } from './geometry';
 export type Action='idle'|'walk'|'run'|'jump'|'attack'|'kick'|'sword_attack'|'ground_slide'|'hurt'|'death';
-export type Input={move:number,jump:boolean,guard:boolean,attack?:Action};
+export type Input={move:number,run?:boolean,jump:boolean,guard:boolean,attack?:Action};
 export type Fighter={collisionSkin?:'yuki'|'an',character:'moon'|'ember',x:number,y:number,vy:number,hp:number,energy:number,face:number,action:Action,time:number,duration:number,hit:boolean,guard:boolean,wins:number};
 export const attacks:Partial<Record<Action,{damage:number,cost:number,duration:number,active:number,activeEnd:number}>>={attack:{damage:9,cost:8,duration:.36,active:.13,activeEnd:.21},kick:{damage:14,cost:15,duration:.4,active:.16,activeEnd:.24},sword_attack:{damage:23,cost:28,duration:.6,active:.274,activeEnd:.48},ground_slide:{damage:11,cost:20,duration:.5,active:.2,activeEnd:.4}};
 export const MAX_HP=200;
@@ -17,7 +17,7 @@ export class Combat{
  update(dt:number,inputs:Input[]){if(this.phase==='roundover'||this.phase==='over')for(const f of this.fighters)if(f.action==='death')f.time+=dt;if(this.phase==='roundover'){if(this.deathAnimationComplete)this.delay+=dt;if(this.deathAnimationComplete&&this.delay>=1){this.round++;this.resetFighters();this.phase='fight'}return}if(this.phase!=='fight')return;this.roundElapsed+=dt;
  this.fighters.forEach((f,i)=>{const input=inputs[i],enemy=this.fighters[1-i];f.time+=dt;f.energy=this.training?100:Math.min(100,f.energy+dt*13);if(f.action!=='death'&&f.duration>0&&f.time>=f.duration){f.action='idle';f.duration=0;f.time=0}if(f.duration===0)f.face=enemy.x>=f.x?1:-1;f.guard=input.guard&&f.y===0&&f.duration===0;
  if(f.duration===0){if(input.jump&&f.y===0){f.vy=-890;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attackTiming(f,attacks[input.attack]!,input.attack);if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
- if(f.duration===0){f.x+=input.move*(f.guard?90:290)*dt;const next=f.y<0||f.vy<0?'jump':input.move?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
+ if(f.duration===0){f.x+=input.move*(f.guard?90:input.run?290:160)*dt;const next=f.y<0||f.vy<0?'jump':input.move?(input.run?'run':'walk'):'idle';if(f.action!==next){f.action=next;f.time=0}}}
  if(f.action==='ground_slide')f.x+=f.face*360*dt;
  f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;f.x=Math.max(90,Math.min(1190,f.x));
  });
@@ -49,6 +49,7 @@ export function bot(c:Combat,now:number):Input{
  const f=c.fighters[1],p=c.fighters[0],distance=Math.abs(p.x-f.x);
  const cycle=Math.floor(now/850),window=now%850;
  return {
+  run:true,
   move:distance>120?Math.sign(p.x-f.x):distance<75&&cycle%4===0?-Math.sign(p.x-f.x)*.65:0,
   jump:distance>200&&cycle%5===0&&window>=300&&window<380,
   guard:!!attacks[p.action]&&distance<220&&p.time>.10&&cycle%5===0,

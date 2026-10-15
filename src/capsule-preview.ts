@@ -15,6 +15,21 @@ const upgrade=(list:any[])=>list.length&&list.every(v=>v.part===undefined)?[...l
 const normalize=(data:Record<string,unknown>):CapsuleEdits=>Object.fromEntries(Object.entries(data).map(([k,v])=>[k,upgrade(Array.isArray(v)?v:[v])])) as CapsuleEdits;
 let edits:CapsuleEdits=normalize(structuredClone(sourceEdits));
 try{const draft=JSON.parse(localStorage.getItem(storageKey)??'{}');if(!validateCapsules(draft))edits={...edits,...normalize(draft)}}catch{}
+// Fill the new walk frames without overwriting the user's existing capsule edits.
+for(let i=3;i<10;i++){
+ const key=`an/walk/${i}`;
+ if(!edits[key]?.length)edits[key]=structuredClone(normalize(sourceEdits)[key]??[]);
+}
+const walkRunMigrationKey=storageKey+'-walk-run-capsules-v1';
+if(!localStorage.getItem(walkRunMigrationKey)){
+ const source=normalize(sourceEdits);
+ for(const c of ['moon','ember','yuki'])for(let i=0;i<10;i++){
+  const walk=`${c}/walk/${i}`,run=`${c}/run/${i}`;
+  if(source[run])edits[walk]=structuredClone(source[run]);
+ }
+ localStorage.setItem(storageKey,JSON.stringify(edits));
+ localStorage.setItem(walkRunMigrationKey,'1');
+}
 // Preserve existing browser edits while migrating run to ten independent frames.
 const runMigrationKey=storageKey+'-run-ten-independent-v1';
 if(!localStorage.getItem(runMigrationKey)){
@@ -110,7 +125,8 @@ async function draw(){
  const token=++sequence,a=action.value as Action,c=who.value as EditorCharacter;frame.max=String(editorFrameCount(c,a));frame.value=String(Math.max(1,Math.min(editorFrameCount(c,a),Number(frame.value))));const i=Number(frame.value)-1;controls();
  const image=new Image();image.src=`/characters/${c}/${editorSprite(c,a)}`;await image.decode();if(token!==sequence)return;
  const wideDeath=['an','yuki'].includes(who.value)&&action.value==='death';const columns=wideDeath?4:image.width/512;const cellWidth=wideDeath?896:512;ctx.clearRect(0,0,512,512);ctx.drawImage(image,(i%columns)*cellWidth+(who.value==='yuki'&&wideDeath?192:0),Math.floor(i/columns)*512,512,512,0,0,512,512);
- const p=hurtboxPoses[poseCharacter(c)][a][poseIndex(c,a,authoredFrame())].map(v=>v*3.2);visible=[];
+ const baseAction=a==='walk'?'run':a;
+ const p=hurtboxPoses[poseCharacter(c)][baseAction][poseIndex(c,baseAction,authoredFrame())].map(v=>v*3.2);visible=[];
  for(const [index,offset] of capsules().entries()){const r=offset.width/2;
  // One rounded capsule remains near the torso, rather than following an extended kicking foot.
  let x1=p[2],y1=p[1]+65,x2=p[2],y2=Math.max(p[7],p[11])-r;

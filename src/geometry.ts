@@ -29,7 +29,7 @@ export function overlap(a: Box, b: Box): Box | undefined {
   return width > 0 && height > 0 ? { x, y, width, height } : undefined;
 }
 export type Contact = Box & { region: BodyRegion };
-export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:20,walk:5};
+export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:20,walk:10};
 export function attackTiming<T extends Timing>(f:Fighter,timing:T,action:Action=f.action):T{
  if(f.collisionSkin&&action==='attack'&&timing.duration!==.28){
   const ratio=.28/timing.duration;
