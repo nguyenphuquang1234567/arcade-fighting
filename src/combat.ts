@@ -6,7 +6,7 @@ export type Fighter={collisionSkin?:'yuki'|'an',character:'moon'|'ember',x:numbe
 export const attacks:Partial<Record<Action,{damage:number,cost:number,duration:number,active:number,activeEnd:number}>>={attack:{damage:9,cost:8,duration:.36,active:.13,activeEnd:.21},kick:{damage:14,cost:15,duration:.4,active:.16,activeEnd:.24},sword_attack:{damage:23,cost:28,duration:.6,active:.274,activeEnd:.48},ground_slide:{damage:11,cost:20,duration:.5,active:.2,activeEnd:.4}};
 export const MAX_HP=200;
 export const ANIME_DEATH_FRAMES=11;
-export const ANIME_DEATH_DURATION=2;
+export const ANIME_DEATH_DURATION=6;
 export const ANIME_DEATH_FPS=ANIME_DEATH_FRAMES/ANIME_DEATH_DURATION;
 export class Combat{
  get deathAnimationComplete(){return this.fighters.every(f=>f.action!=='death'||f.time>=(f.collisionSkin?(f.collisionSkin==='an'?6:ANIME_DEATH_DURATION):frameCount(f.character,'death')/6))}
