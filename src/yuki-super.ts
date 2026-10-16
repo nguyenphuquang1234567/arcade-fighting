@@ -1,6 +1,7 @@
 import edits from './super-hitbox-overrides.json';
 // One-based animation frames; hit rectangles run from the limb root to the striking tip.
-export const SUPER_FRAMES=100;
+export const SUPER_FRAMES=99;
+export function superFrameIndex(time:number){const index=Math.min(98,Math.floor(Math.max(0,time)*99/1.5+1e-7));return index>=66?index+1:index;}
 export const SUPER_DURATION=1.5;
 type LimbKey=[number,number,number,number,number];
 const punches:LimbKey[]=[
@@ -18,7 +19,7 @@ const kicks:LimbKey[]=[
  [71,326,325,505,125],[73,326,325,510,202],[75,320,325,455,260]
 ];
 export function superStrike(time:number){
- const frame=Math.min(100,Math.floor(Math.max(0,time)*SUPER_FRAMES/SUPER_DURATION)+1);
+ const frame=superFrameIndex(time)+1;
  const windows=[[6,8],[10,13],[16,19],[22,25],[28,31],[34,37],[41,45],[48,51],[64,75]];
  const stage=windows.findIndex(([a,b])=>frame>=a&&frame<=b);
  if(stage<0)return;

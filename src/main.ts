@@ -1,3 +1,4 @@
+import {superFrameIndex} from './yuki-super';
 import Phaser from 'phaser';
 import {Combat,bot,attacks,MAX_HP,type Action,type Input} from './combat';
 import './style.css';
@@ -80,7 +81,7 @@ class Dojo extends Phaser.Scene{
   this.loadedGroup=anime;this.matchReady=true;this.sprites.forEach(s=>s.setVisible(true));return true;
  }
  superFrame(time:number){
-  const index=Math.min(99,Math.floor(Math.max(0,time)*100/1.5)),page=Math.floor(index/8);
+  const index=superFrameIndex(time),page=Math.floor(index/8);
   const key=`yuki-super-page-${page}`;if(this.textures.exists(key))return {key,frame:index%8};
   for(let p=page-1;p>=0;p--){const k=`yuki-super-page-${p}`;if(this.textures.exists(k))return {key:k,frame:7}}
   return {key:'yuki-idle',frame:0};
@@ -88,7 +89,7 @@ class Dojo extends Phaser.Scene{
  streamSuper(){
   if(!this.matchReady||!isYukiMode())return;
   const f=combat.fighters.find(f=>f.collisionSkin==='yuki'&&f.superTime!==undefined);
-  const page=f?Math.floor(Math.min(99,Math.floor(f.superTime!*100/1.5))/8):0;
+  const page=f?Math.floor(superFrameIndex(f.superTime!)/8):0;
   const wanted=new Set([page,Math.min(12,page+1)]);
   for(let p=0;p<13;p++){const key=`yuki-super-page-${p}`;if(!wanted.has(p)&&this.textures.exists(key)&&!this.sprites.some(s=>s.texture.key===key))this.textures.remove(key)}
   for(const p of wanted){const key=`yuki-super-page-${p}`;if(this.textures.exists(key)||this.deathLoads.has(key))continue;this.deathLoads.add(key);this.load.once(`filecomplete-spritesheet-${key}`,()=>this.deathLoads.delete(key));this.load.spritesheet(key,`/characters/yuki/super-pages/${p}.png`,{frameWidth:512,frameHeight:512,endFrame:p===12?3:7});}

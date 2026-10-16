@@ -1,3 +1,4 @@
+import {superHurtboxes} from './super-hurtboxes';
 import {superStrike} from './yuki-super';
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts, frameCount } from './fighters';
@@ -53,6 +54,7 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
+ if(f.collisionSkin==='yuki'&&f.superTime!==undefined)return superHurtboxes(f.superTime).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt))}));
  return capsulesFor(f.collisionSkin??f.character,f.action,f.collisionSkin&&f.action==='kick'&&timing?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
 export function polygonCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{

@@ -31,7 +31,8 @@ export class Combat{
    const special=f.collisionSkin==='yuki'&&f.superTime!==undefined?superStrike(f.superTime):undefined;
    if(enemy.hp<=0||(f.superTime!==undefined?(!special||f.superHitStages?.includes(special.stage)):f.hit))return [];
    const contact=polygonCollision(getHitboxes(f,attacks[f.action]),enemy,attacks[enemy.action]);
-   const attack=attacks[special?.action??f.action];
+   const baseAttack=attacks[special?.action??f.action];
+   const attack=baseAttack&&special?{...baseAttack,damage:special.action==='kick'?12:5}:baseAttack;
    return contact&&attack?[{f,enemy,attack,special,contact,blocked:enemy.guard&&enemy.energy>=10,direction:f.face}]:[];
  });
  for(const {f,enemy,attack,special,contact,blocked,direction} of contacts){
@@ -54,11 +55,13 @@ export class Combat{
 export function bot(c:Combat,now:number):Input{
  const f=c.fighters[1],p=c.fighters[0],distance=Math.abs(p.x-f.x);
  const cycle=Math.floor(now/850),window=now%850;
+ const useSuper=f.collisionSkin==='yuki'&&f.superCharge>=100&&f.superTime===undefined&&f.duration===0&&p.hp>0&&distance<170&&Math.abs(p.y-f.y)<110;
  return {
+  super:useSuper,
   move:distance>120?Math.sign(p.x-f.x):distance<75&&cycle%4===0?-Math.sign(p.x-f.x)*.65:0,
   jump:distance>200&&cycle%5===0&&window>=300&&window<380,
-  guard:!!attacks[p.action]&&distance<220&&p.time>.10&&cycle%5===0,
-  attack:distance<190&&window>=300&&window<400
+  guard:!useSuper&&!!attacks[p.action]&&distance<220&&p.time>.10&&cycle%5===0,
+  attack:!useSuper&&distance<190&&window>=300&&window<400
    ?(['attack','kick','attack','ground_slide','sword_attack'] as Action[])[cycle%5]
    :undefined
  };
