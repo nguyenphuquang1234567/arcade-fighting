@@ -9,8 +9,8 @@ export const ANIME_DEATH_FRAMES=11;
 export const ANIME_DEATH_DURATION=2;
 export const ANIME_DEATH_FPS=ANIME_DEATH_FRAMES/ANIME_DEATH_DURATION;
 export class Combat{
- get deathAnimationComplete(){return this.fighters.every(f=>f.action!=='death'||f.time>=(f.collisionSkin?(f.collisionSkin==='an'?4.25:ANIME_DEATH_DURATION):frameCount(f.character,'death')/6))}
- training=false;fighters:Fighter[]=[];remaining=Infinity;roundElapsed=0;round=1;phase:'menu'|'fight'|'roundover'|'over'='menu';delay=0;onHit?:(x:number,y:number,blocked:boolean,action:Action)=>void;onAttack?:(action:Action)=>void;onRound?:(winner:number,finished:boolean)=>void;
+ get deathAnimationComplete(){return this.fighters.every(f=>f.action!=='death'||f.time>=(f.collisionSkin?(f.collisionSkin==='an'?6:ANIME_DEATH_DURATION):frameCount(f.character,'death')/6))}
+ training=false;fighters:Fighter[]=[];remaining=Infinity;roundElapsed=0;round=1;phase:'menu'|'fight'|'roundover'|'over'='menu';delay=0;onHit?:(x:number,y:number,blocked:boolean,action:Action)=>void;onAttack?:(action:Action)=>void;onRound?:(winner:number,finished:boolean)=>void;onDeath?:(fighter:Fighter)=>void;
  constructor(){this.resetFighters()}
  resetFighters(){this.fighters=[360,920].map((x,i)=>({character:i===0?'moon':'ember',x,y:0,vy:0,hp:MAX_HP,energy:100,face:i===0?1:-1,action:'idle',time:0,duration:0,hit:false,guard:false,wins:this.fighters[i]?.wins||0}));this.remaining=Infinity;this.roundElapsed=0;}
  start(training=false){this.training=training;this.fighters=[];this.round=1;this.resetFighters();this.phase='fight'}
@@ -34,7 +34,7 @@ export class Combat{
    f.hit=true;
    if(!this.training)enemy.hp=Math.max(0,enemy.hp-(blocked?attack.damage*.18:attack.damage));
    if(blocked&&!this.training)enemy.energy-=10;
-   if(enemy.hp<=0){enemy.action='death';enemy.duration=10;enemy.time=0;enemy.hit=true;enemy.guard=false;}
+   if(enemy.hp<=0){enemy.action='death';enemy.duration=10;enemy.time=0;enemy.hit=true;enemy.guard=false;this.onDeath?.(enemy);}
    else if(!blocked){enemy.action='hurt';enemy.duration=.28;enemy.time=0;enemy.hit=true;}
    if(enemy.hp>0)enemy.x=Math.max(90,Math.min(1190,enemy.x+direction*(blocked?12:32)));
    this.onHit?.(contact.x+contact.width/2,contact.y+contact.height/2,blocked,f.action);
