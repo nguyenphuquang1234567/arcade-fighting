@@ -73,7 +73,7 @@ class Dojo extends Phaser.Scene{
   this.deathLoads.clear();
   let failed=false;
   const fail=()=>{failed=true};this.load.on('loaderror',fail);
-  if(anime){for(let page=0;page<2;page++)this.load.spritesheet(`an-death-page-${page}`,`/characters/an/death-pages/${page}.png`,{frameWidth:512,frameHeight:512,endFrame:7});this.load.spritesheet('an-slash','/characters/an/sword_attack.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('an-hurt','/characters/an/hurt.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('an-jump','/characters/an/jump.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('an-slide','/characters/an/ground_slide.png',{frameWidth:512,frameHeight:512});this.load.multiatlas('an-kick','/characters/an/kick-pages/atlas.json','/characters/an/kick-pages');this.load.multiatlas('an-attack','/characters/an/attack-pages/atlas.json','/characters/an/attack-pages');this.load.multiatlas('an-run','/characters/an/run-pages/atlas.json','/characters/an/run-pages');this.load.spritesheet('an-idle','/characters/an/idle.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('yuki-slash','/characters/yuki/sword_attack.png',{frameWidth:512,frameHeight:512});for(let page=0;page<2;page++)this.load.spritesheet(`yuki-death-page-${page}`,`/characters/yuki/death-pages-105/${page}.png`,{frameWidth:512,frameHeight:512,endFrame:7});this.load.multiatlas('yuki-kick','/characters/yuki/kick-pages/atlas.json','/characters/yuki/kick-pages');this.load.multiatlas('yuki-punch','/characters/yuki/attack-pages/atlas.json','/characters/yuki/attack-pages');this.load.spritesheet('yuki-slide','/characters/yuki/ground_slide.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('yuki-jump','/characters/yuki/jump.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('yuki-hurt','/characters/yuki/hurt.png',{frameWidth:512,frameHeight:512});this.load.multiatlas('yuki-run','/characters/yuki/run-pages/atlas.json','/characters/yuki/run-pages');this.load.spritesheet('yuki-idle','/characters/yuki/idle.png',{frameWidth:512,frameHeight:512});}else{for(const {key:who} of fighters)for(const action of actions){if(['attack','kick','run'].includes(action))this.load.multiatlas(`${who}-${action}`,`/characters/${who}/${action}-pages/atlas.json`,`/characters/${who}/${action}-pages`);else this.load.spritesheet(`${who}-${action}`,`/characters/${who}/${spriteFile(who,action)}`,{frameWidth:512,frameHeight:512})}}
+  if(anime){for(let page=0;page<2;page++)this.load.spritesheet(`an-death-page-${page}`,`/characters/an/death-pages-120/${page}.png`,{frameWidth:512,frameHeight:512,endFrame:7});this.load.spritesheet('an-slash','/characters/an/sword_attack.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('an-hurt','/characters/an/hurt.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('an-jump','/characters/an/jump.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('an-slide','/characters/an/ground_slide.png',{frameWidth:512,frameHeight:512});this.load.multiatlas('an-kick','/characters/an/kick-pages/atlas.json','/characters/an/kick-pages');this.load.multiatlas('an-attack','/characters/an/attack-pages/atlas.json','/characters/an/attack-pages');this.load.multiatlas('an-run','/characters/an/run-pages/atlas.json','/characters/an/run-pages');this.load.spritesheet('an-idle','/characters/an/idle.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('yuki-slash','/characters/yuki/sword_attack.png',{frameWidth:512,frameHeight:512});for(let page=0;page<2;page++)this.load.spritesheet(`yuki-death-page-${page}`,`/characters/yuki/death-pages-105/${page}.png`,{frameWidth:512,frameHeight:512,endFrame:7});this.load.multiatlas('yuki-kick','/characters/yuki/kick-pages/atlas.json','/characters/yuki/kick-pages');this.load.multiatlas('yuki-punch','/characters/yuki/attack-pages/atlas.json','/characters/yuki/attack-pages');this.load.spritesheet('yuki-slide','/characters/yuki/ground_slide.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('yuki-jump','/characters/yuki/jump.png',{frameWidth:512,frameHeight:512});this.load.spritesheet('yuki-hurt','/characters/yuki/hurt.png',{frameWidth:512,frameHeight:512});this.load.multiatlas('yuki-run','/characters/yuki/run-pages/atlas.json','/characters/yuki/run-pages');this.load.spritesheet('yuki-idle','/characters/yuki/idle.png',{frameWidth:512,frameHeight:512});}else{for(const {key:who} of fighters)for(const action of actions){if(['attack','kick','run'].includes(action))this.load.multiatlas(`${who}-${action}`,`/characters/${who}/${action}-pages/atlas.json`,`/characters/${who}/${action}-pages`);else this.load.spritesheet(`${who}-${action}`,`/characters/${who}/${spriteFile(who,action)}`,{frameWidth:512,frameHeight:512})}}
   await new Promise<void>(resolve=>{this.load.once('complete',resolve);this.load.start()});
   this.load.off('loaderror',fail);this.loadingMatch=false;
   if(failed){this.loadedGroup=undefined;return false}
@@ -81,7 +81,7 @@ class Dojo extends Phaser.Scene{
  }
  deathLoads=new Set<string>();
  deathFrame(skin:'an'|'yuki',time:number){
-  const count=skin==='an'?85:105,index=Math.min(count-1,Math.floor(Math.max(0,time)*count/6)),page=Math.floor(index/8);
+  const count=skin==='an'?120:105,index=Math.min(count-1,Math.floor(Math.max(0,time)*count/6)),page=Math.floor(index/8);
   const key=`${skin}-death-page-${page}`;
   if(this.textures.exists(key))return {key,frame:index%8};
   for(let p=page-1;p>=0;p--){const previous=`${skin}-death-page-${p}`;if(this.textures.exists(previous))return {key:previous,frame:7}}
@@ -90,14 +90,14 @@ class Dojo extends Phaser.Scene{
  streamAnDeath(){
   if(!this.matchReady||!isYukiMode())return;
   for(const skin of ['an','yuki'] as const){
-   const count=skin==='an'?85:105,last=Math.ceil(count/8)-1;
+   const count=skin==='an'?120:105,last=Math.ceil(count/8)-1;
    const dying=combat.fighters.find(f=>f.collisionSkin===skin&&f.action==='death');
    const page=dying?Math.floor(Math.min(count-1,Math.floor(Math.max(0,dying.time)*count/6))/8):0;
    const wanted=new Set([page,Math.min(last,page+1)]);
    for(let p=0;p<=last;p++){const key=`${skin}-death-page-${p}`;if(!wanted.has(p)&&this.textures.exists(key)&&!this.sprites.some(s=>s.texture.key===key))this.textures.remove(key)}
    for(const p of wanted){const key=`${skin}-death-page-${p}`;if(this.textures.exists(key)||this.deathLoads.has(key))continue;
     this.deathLoads.add(key);this.load.once(`filecomplete-spritesheet-${key}`,()=>this.deathLoads.delete(key));
-    this.load.spritesheet(key,`/characters/${skin}/${skin==='an'?'death-pages':'death-pages-105'}/${p}.png`,{frameWidth:512,frameHeight:512,endFrame:Math.min(7,count-p*8-1)});
+    this.load.spritesheet(key,`/characters/${skin}/${skin==='an'?'death-pages-120':'death-pages-105'}/${p}.png`,{frameWidth:512,frameHeight:512,endFrame:Math.min(7,count-p*8-1)});
    }
   }
   if(!this.load.isLoading()&&this.deathLoads.size)this.load.start();
