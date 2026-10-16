@@ -1,3 +1,4 @@
+import {superStrike} from './yuki-super';
 import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts, frameCount } from './fighters';
 import hitEdits from './hitbox-overrides.json';
@@ -101,7 +102,9 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
  return outer.area-holes>1e-6?{...outer.box,region:poly.region}:undefined;
 }
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
-  if (!timing || f.hp <= 0) return [];
+  if(f.hp<=0)return [];
+  if(f.collisionSkin==='yuki'&&f.superTime!==undefined){const strike=superStrike(f.superTime);return strike?[worldBox(f,strike.box)]:[];}
+  if (!timing) return [];
   timing=attackTiming(f,timing);
   // Nine-frame anime kicks: frame4 starts at .12, frame7 ends at .304.
   // Keep animation timing independent from the edited contact window.

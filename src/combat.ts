@@ -1,8 +1,9 @@
+import {superStrike} from './yuki-super';
 import {frameCount} from './fighters';
 import { polygonCollision, getHitboxes, attackTiming } from './geometry';
 export type Action='idle'|'walk'|'run'|'jump'|'attack'|'kick'|'sword_attack'|'ground_slide'|'hurt'|'death';
-export type Input={move:number,jump:boolean,guard:boolean,attack?:Action};
-export type Fighter={collisionSkin?:'yuki'|'an',character:'moon'|'ember',x:number,y:number,vy:number,hp:number,energy:number,face:number,action:Action,time:number,duration:number,hit:boolean,guard:boolean,wins:number};
+export type Input={move:number,jump:boolean,guard:boolean,super?:boolean,attack?:Action};
+export type Fighter={superCharge:number,superTime?:number,superHitStages?:number[],collisionSkin?:'yuki'|'an',character:'moon'|'ember',x:number,y:number,vy:number,hp:number,energy:number,face:number,action:Action,time:number,duration:number,hit:boolean,guard:boolean,wins:number};
 export const attacks:Partial<Record<Action,{damage:number,cost:number,duration:number,active:number,activeEnd:number}>>={attack:{damage:9,cost:8,duration:.36,active:.13,activeEnd:.21},kick:{damage:14,cost:15,duration:.4,active:.16,activeEnd:.24},sword_attack:{damage:23,cost:28,duration:.6,active:.274,activeEnd:.48},ground_slide:{damage:11,cost:20,duration:.5,active:.2,activeEnd:.4}};
 export const MAX_HP=200;
 export const ANIME_DEATH_FRAMES=11;
@@ -12,10 +13,12 @@ export class Combat{
  get deathAnimationComplete(){return this.fighters.every(f=>f.action!=='death'||f.time>=(f.collisionSkin?(f.collisionSkin==='an'?6:ANIME_DEATH_DURATION):frameCount(f.character,'death')/6))}
  training=false;fighters:Fighter[]=[];remaining=Infinity;roundElapsed=0;round=1;phase:'menu'|'fight'|'roundover'|'over'='menu';delay=0;onHit?:(x:number,y:number,blocked:boolean,action:Action)=>void;onAttack?:(action:Action)=>void;onRound?:(winner:number,finished:boolean)=>void;onDeath?:(fighter:Fighter)=>void;
  constructor(){this.resetFighters()}
- resetFighters(){this.fighters=[360,920].map((x,i)=>({character:i===0?'moon':'ember',x,y:0,vy:0,hp:MAX_HP,energy:100,face:i===0?1:-1,action:'idle',time:0,duration:0,hit:false,guard:false,wins:this.fighters[i]?.wins||0}));this.remaining=Infinity;this.roundElapsed=0;}
+ resetFighters(){this.fighters=[360,920].map((x,i)=>({character:i===0?'moon':'ember',x,y:0,vy:0,hp:MAX_HP,superCharge:0,energy:100,face:i===0?1:-1,action:'idle',time:0,duration:0,hit:false,guard:false,wins:this.fighters[i]?.wins||0}));this.remaining=Infinity;this.roundElapsed=0;}
  start(training=false){this.training=training;this.fighters=[];this.round=1;this.resetFighters();this.phase='fight'}
  update(dt:number,inputs:Input[]){if(this.phase==='roundover'||this.phase==='over')for(const f of this.fighters)if(f.action==='death')f.time+=dt;if(this.phase==='roundover'){if(this.deathAnimationComplete)this.delay+=dt;if(this.deathAnimationComplete&&this.delay>=1){this.round++;this.resetFighters();this.phase='fight'}return}if(this.phase!=='fight')return;this.roundElapsed+=dt;
  this.fighters.forEach((f,i)=>{const input=inputs[i],enemy=this.fighters[1-i];f.time+=dt;f.energy=this.training?100:Math.min(100,f.energy+dt*13);if(f.action!=='death'&&f.duration>0&&f.time>=f.duration){f.action='idle';f.duration=0;f.time=0}if(f.duration===0)f.face=enemy.x>=f.x?1:-1;f.guard=input.guard&&f.y===0&&f.duration===0;
+ if(f.superTime!==undefined){f.superTime+=dt;f.guard=false;if(f.superTime>=1.5){f.superTime=undefined;f.action='idle';f.time=0;}else{f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}}
+ if(input.super&&f.collisionSkin==='yuki'&&f.superCharge>=100&&f.duration===0){f.superCharge=0;f.superTime=0;f.superHitStages=[];f.action='idle';f.time=0;f.guard=false;f.hit=true;f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}
  if(f.duration===0){if(input.jump&&f.y===0){f.vy=-890;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attackTiming(f,attacks[input.attack]!,input.attack);if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
  if(f.duration===0){f.x+=input.move*(f.guard?90:290)*dt;const next=f.y<0||f.vy<0?'jump':input.move?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
  if(f.action==='ground_slide')f.x+=f.face*360*dt;
@@ -25,19 +28,22 @@ export class Combat{
  // Snapshot contacts so simultaneous strikes can trade rather than favor index 0.
  const contacts=this.fighters.flatMap((f,i)=>{
    const enemy=this.fighters[1-i];
-   if(f.hit||enemy.hp<=0)return [];
+   const special=f.collisionSkin==='yuki'&&f.superTime!==undefined?superStrike(f.superTime):undefined;
+   if(enemy.hp<=0||(f.superTime!==undefined?(!special||f.superHitStages?.includes(special.stage)):f.hit))return [];
    const contact=polygonCollision(getHitboxes(f,attacks[f.action]),enemy,attacks[enemy.action]);
-   const attack=attacks[f.action];
-   return contact&&attack?[{f,enemy,attack,contact,blocked:enemy.guard&&enemy.energy>=10,direction:f.face}]:[];
+   const attack=attacks[special?.action??f.action];
+   return contact&&attack?[{f,enemy,attack,special,contact,blocked:enemy.guard&&enemy.energy>=10,direction:f.face}]:[];
  });
- for(const {f,enemy,attack,contact,blocked,direction} of contacts){
-   f.hit=true;
+ for(const {f,enemy,attack,special,contact,blocked,direction} of contacts){
+   if(special)(f.superHitStages??=[]).push(special.stage);else f.hit=true;
+   if(!blocked&&!special&&f.collisionSkin==='yuki')f.superCharge=Math.min(100,f.superCharge+attack.damage);
+   if(!blocked)enemy.superTime=undefined;
    if(!this.training)enemy.hp=Math.max(0,enemy.hp-(blocked?attack.damage*.18:attack.damage));
    if(blocked&&!this.training)enemy.energy-=10;
    if(enemy.hp<=0){enemy.action='death';enemy.duration=10;enemy.time=0;enemy.hit=true;enemy.guard=false;this.onDeath?.(enemy);}
    else if(!blocked){enemy.action='hurt';enemy.duration=.28;enemy.time=0;enemy.hit=true;}
    if(enemy.hp>0)enemy.x=Math.max(90,Math.min(1190,enemy.x+direction*(blocked?12:32)));
-   this.onHit?.(contact.x+contact.width/2,contact.y+contact.height/2,blocked,f.action);
+   this.onHit?.(contact.x+contact.width/2,contact.y+contact.height/2,blocked,special?.action??f.action);
  }
 
  const [a,b]=this.fighters;const gap=b.x-a.x;if(a.hp>0&&b.hp>0&&Math.abs(gap)<65&&Math.abs(a.y-b.y)<90){const push=(65-Math.abs(gap))/2*(gap>=0?1:-1);a.x=Math.max(90,Math.min(1190,a.x-push));b.x=Math.max(90,Math.min(1190,b.x+push));}
