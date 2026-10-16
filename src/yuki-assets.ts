@@ -5,10 +5,11 @@ export const yukiActions:Action[]=['idle','run','jump','attack','kick','ground_s
 export const anActions:Action[]=['idle','run','jump','attack','kick','ground_slide','hurt','death','sword_attack'];
 export function editorActions(c:EditorCharacter):Action[]{return c==='an'?anActions:Object.keys(frameCounts) as Action[]}
 export function editorFrameCount(c:EditorCharacter,a:Action){
- if(c==='an')return a==='death'?14:a==='kick'?9:anActions.includes(a)?frameCounts[a]:2;
+ if(c==='an')return a==='death'?85:a==='kick'?9:anActions.includes(a)?frameCounts[a]:2;
  return c==='yuki'?(a==='death'?12:a==='kick'?9:yukiActions.includes(a)?frameCounts[a]:2):frameCounts[a];
 }
-export function editorSprite(c:EditorCharacter,a:Action){
+export function editorSprite(c:EditorCharacter,a:Action,frame=0){
+ if(c==='an'&&a==='death'&&frame>=64)return 'death-end.png';
  if(c==='an')return anActions.includes(a)?`${a}.png`:'idle.png';
  return c==='yuki'?(a==='kick'?'kick-user-9.png':yukiActions.includes(a)?`${a}.png`:'idle.png'):spriteFile(c,a);
 }
