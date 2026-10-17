@@ -45,7 +45,7 @@
 }
 @media (orientation:landscape) and (max-height:600px) and (max-width:1000px), (orientation:landscape) and (pointer:coarse){
  html,body{height:100%;overflow:hidden}#app{max-width:none;height:100dvh;padding:0}header,.bottom,footer{display:none}main{position:relative;height:100%;padding:0}
- #arena{height:100%;width:100%;border:0}.arena-stage{height:100%;width:100%;aspect-ratio:auto}.arena-stage #game{display:flex;align-items:center;justify-content:center;background:#100c15}.arena-stage #game canvas{object-fit:contain}
+ #arena{height:100%;width:100%;border:0}.arena-stage{height:100%;width:100%;aspect-ratio:auto}.arena-stage #game{display:block;background:#100c15}.arena-stage #game canvas{object-fit:contain}
  #touch-controls{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:none;border:0;pointer-events:none;z-index:4}
  #touch-stick,.touch-attacks{pointer-events:auto;opacity:.78}#touch-stick{flex-basis:120px;width:120px;height:120px}#stick-knob{width:52px;height:52px}.stick-directions{font-size:104px}.touch-attacks{grid-template-columns:repeat(2,52px);gap:7px}#touch-controls .touch-attacks button{min-width:52px;min-height:48px;background:#211725cf}
  .hud-controls,#menu-help{display:none!important}.arena-caption{display:none}#hud{padding-top:12px}
@@ -55,7 +55,7 @@
  footer{display:flex;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:5;padding:0;border:0}footer #boxes{display:none}footer #pause{padding:7px 10px;background:#17111dcc;font-size:10px}
 }
 @media (orientation:landscape) and (max-height:600px) and (max-width:1000px), (orientation:landscape) and (pointer:coarse){
- .arena-stage #game canvas{position:relative;left:-20px}
+ .arena-stage #game canvas{position:static;left:auto}
 }
 
 .super-meter{position:relative;height:18px;background:#101b31;border:1px solid #3d81a0;margin-top:4px;overflow:hidden}.super-meter[hidden]{display:none}.super-meter i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#1679bd,#6be8ff)}.super-meter span{position:relative;display:block;text-align:center;font-size:10px;line-height:16px;letter-spacing:1px;color:white;text-shadow:0 1px 2px #000}
