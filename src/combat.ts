@@ -1,3 +1,4 @@
+import {anStrike} from './an-super';
 import {superStrike} from './yuki-super';
 import {frameCount} from './fighters';
 import { polygonCollision, getHitboxes, attackTiming } from './geometry';
@@ -18,7 +19,7 @@ export class Combat{
  update(dt:number,inputs:Input[]){if(this.phase==='roundover'||this.phase==='over')for(const f of this.fighters)if(f.action==='death')f.time+=dt;if(this.phase==='roundover'){if(this.deathAnimationComplete)this.delay+=dt;if(this.deathAnimationComplete&&this.delay>=1){this.round++;this.resetFighters();this.phase='fight'}return}if(this.phase!=='fight')return;this.roundElapsed+=dt;
  this.fighters.forEach((f,i)=>{const input=inputs[i],enemy=this.fighters[1-i];f.time+=dt;f.energy=this.training?100:Math.min(100,f.energy+dt*13);if(f.action!=='death'&&f.duration>0&&f.time>=f.duration){f.action='idle';f.duration=0;f.time=0}if(f.duration===0)f.face=enemy.x>=f.x?1:-1;f.guard=input.guard&&f.y===0&&f.duration===0;
  if(f.superTime!==undefined){f.superTime+=dt;f.guard=false;if(f.superTime>=1.5){f.superTime=undefined;f.action='idle';f.time=0;}else{f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}}
- if(input.super&&f.collisionSkin==='yuki'&&f.superCharge>=100&&f.duration===0){f.superCharge=0;f.superTime=0;f.superHitStages=[];f.action='idle';f.time=0;f.guard=false;f.hit=true;f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}
+ if(input.super&&f.collisionSkin&&f.superCharge>=100&&f.duration===0){f.superCharge=0;f.superTime=0;f.superHitStages=[];f.action='idle';f.time=0;f.guard=false;f.hit=true;f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}
  if(f.duration===0){if(input.jump&&f.y===0){f.vy=-890;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attackTiming(f,attacks[input.attack]!,input.attack);if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
  if(f.duration===0){f.x+=input.move*(f.guard?90:290)*dt;const next=f.y<0||f.vy<0?'jump':input.move?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
  if(f.action==='ground_slide')f.x+=f.face*360*dt;
@@ -28,7 +29,7 @@ export class Combat{
  // Snapshot contacts so simultaneous strikes can trade rather than favor index 0.
  const contacts=this.fighters.flatMap((f,i)=>{
    const enemy=this.fighters[1-i];
-   const special=f.collisionSkin==='yuki'&&f.superTime!==undefined?superStrike(f.superTime):undefined;
+   const special=f.collisionSkin&&f.superTime!==undefined?(f.collisionSkin==='an'?anStrike(f.superTime):superStrike(f.superTime)):undefined;
    if(enemy.hp<=0||(f.superTime!==undefined?(!special||f.superHitStages?.includes(special.stage)):f.hit))return [];
    const contact=polygonCollision(getHitboxes(f,attacks[f.action]),enemy,attacks[enemy.action]);
    const baseAttack=attacks[special?.action??f.action];
@@ -37,7 +38,7 @@ export class Combat{
  });
  for(const {f,enemy,attack,special,contact,blocked,direction} of contacts){
    if(special)(f.superHitStages??=[]).push(special.stage);else f.hit=true;
-   if(!blocked&&!special&&f.collisionSkin==='yuki')f.superCharge=Math.min(100,f.superCharge+attack.damage);
+   if(!blocked&&!special&&f.collisionSkin)f.superCharge=Math.min(100,f.superCharge+attack.damage);
    if(!blocked)enemy.superTime=undefined;
    if(!this.training)enemy.hp=Math.max(0,enemy.hp-(blocked?attack.damage*.18:attack.damage));
    if(blocked&&!this.training)enemy.energy-=10;
@@ -55,7 +56,7 @@ export class Combat{
 export function bot(c:Combat,now:number):Input{
  const f=c.fighters[1],p=c.fighters[0],distance=Math.abs(p.x-f.x);
  const cycle=Math.floor(now/850),window=now%850;
- const useSuper=f.collisionSkin==='yuki'&&f.superCharge>=100&&f.superTime===undefined&&f.duration===0&&p.hp>0&&distance<170&&Math.abs(p.y-f.y)<110;
+ const useSuper=!!f.collisionSkin&&f.superCharge>=100&&f.superTime===undefined&&f.duration===0&&p.hp>0&&distance<170&&Math.abs(p.y-f.y)<110;
  return {
   super:useSuper,
   move:distance>120?Math.sign(p.x-f.x):distance<75&&cycle%4===0?-Math.sign(p.x-f.x)*.65:0,

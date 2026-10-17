@@ -1,3 +1,4 @@
+import {anStrike,anHurtboxes} from './an-super';
 import {superHurtboxes} from './super-hurtboxes';
 import {superStrike} from './yuki-super';
 import type { Action, Fighter } from './combat';
@@ -54,7 +55,7 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
- if(f.collisionSkin==='yuki'&&f.superTime!==undefined)return superHurtboxes(f.superTime).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt))}));
+ if(f.collisionSkin&&f.superTime!==undefined)return (f.collisionSkin==='an'?anHurtboxes(f.superTime):superHurtboxes(f.superTime)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt))}));
  return capsulesFor(f.collisionSkin??f.character,f.action,f.collisionSkin&&f.action==='kick'&&timing?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
 export function polygonCollision(hitboxes:Box[],f:Fighter,timing?:Timing):Contact|undefined{
@@ -105,7 +106,7 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
 }
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   if(f.hp<=0)return [];
-  if(f.collisionSkin==='yuki'&&f.superTime!==undefined){const strike=superStrike(f.superTime);return strike?[worldBox(f,strike.box)]:[];}
+  if(f.collisionSkin&&f.superTime!==undefined){const strike=f.collisionSkin==='an'?anStrike(f.superTime):superStrike(f.superTime);return strike?[worldBox(f,strike.box)]:[];}
   if (!timing) return [];
   timing=attackTiming(f,timing);
   // Nine-frame anime kicks: frame4 starts at .12, frame7 ends at .304.
