@@ -168,20 +168,3 @@ window.addEventListener('resize',refreshLayout);
 window.visualViewport?.addEventListener('resize',refreshLayout);
 window.addEventListener('orientationchange',()=>{clearTouch();refreshLayout()});
 screen.orientation?.addEventListener('change',()=>{clearTouch();refreshLayout()});
-
-// Local art preview: exercise the actual match renderer without waiting to charge.
-if(import.meta.env.DEV&&new URLSearchParams(location.search).get('preview')?.endsWith('-super')){
- anUnlocked=true;
- const previewTimer=window.setInterval(async()=>{
-  if(!scene||scene.loadingMatch)return;
-  window.clearInterval(previewTimer);
-  (document.querySelector(new URLSearchParams(location.search).get('preview')==='yuki-super'?'[data-mode="yuki-training"]':'[data-mode="an-training"]') as HTMLButtonElement).click();
-  ($('start') as HTMLButtonElement).click();
-  const play=window.setInterval(()=>{
-   if(!scene?.matchReady||combat.phase!=='fight')return;
-   const f=combat.fighters[0],enemy=combat.fighters[1];
-   f.superCharge=100;f.superTime=0;f.duration=0;f.x=360;enemy.x=1100;
-  },1800);
-  window.addEventListener('pagehide',()=>window.clearInterval(play),{once:true});
- },100);
-}
