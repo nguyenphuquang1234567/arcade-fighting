@@ -14,8 +14,8 @@ export function defaultHitboxes(action:string,frame:number):HitBox[]{
 export function validateHitboxes(data:unknown):string|undefined{
  if(!data||typeof data!=='object'||Array.isArray(data))return 'Dữ liệu không hợp lệ';
  for(const [key,boxes] of Object.entries(data)){
- const [who,a,f,...rest]=key.split('/');if(rest.length||!['moon','ember','yuki','an'].includes(who)||!strikes.includes(a as typeof strikes[number])||!/^\d+$/.test(f)||Number(f)>=editorFrameCount(who as EditorCharacter,a as keyof typeof frameCounts))return `Frame không hợp lệ: ${key}`;
+ const [who,a,f,...rest]=key.split('/');if(rest.length||!['moon','ember','yuki','an'].includes(who)||!strikes.includes(a as typeof strikes[number])||!/^\d+$/.test(f)||Number(f)>=((who==='an'||who==='yuki')&&a==='sword_attack'?62:editorFrameCount(who as EditorCharacter,a as keyof typeof frameCounts)))return `Frame không hợp lệ: ${key}`;
  if(!Array.isArray(boxes)||boxes.length>16)return `Tối đa 16 hitbox: ${key}`;
- for(const b of boxes)if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.width<=0||b.height<=0||(b.angle!==undefined&&(!Number.isFinite(b.angle)||Math.abs(b.angle)>180))||hitboxCorners(b).some(p=>p.x<-.000001||p.y<-.000001||p.x>512.000001||p.y>512.000001))return `Hitbox phải nằm trong frame: ${key}`;
+ for(const b of boxes)if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.width<=0||b.height<=0||(b.angle!==undefined&&(!Number.isFinite(b.angle)||Math.abs(b.angle)>180))||hitboxCorners(b).some(p=>p.x<((who==='an'||who==='yuki')&&a==='sword_attack'?-128.000001:-.000001)||p.y<-.000001||p.x>((who==='an'||who==='yuki')&&a==='sword_attack'?640.000001:512.000001)||p.y>512.000001))return `Hitbox phải nằm trong frame: ${key}`;
  }
 }

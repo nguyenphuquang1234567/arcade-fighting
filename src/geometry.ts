@@ -1,3 +1,5 @@
+import {yukiSlashHitboxes} from './yuki-slash';
+import {anSlashHitboxes} from './an-slash';
 import {anStrike,anHurtboxes} from './an-super';
 import {superHurtboxes} from './super-hurtboxes';
 import {superStrike} from './yuki-super';
@@ -5,6 +7,9 @@ import type { Action, Fighter } from './combat';
 import { attackFrame, frameCounts, frameCount } from './fighters';
 import hitEdits from './hitbox-overrides.json';
 import {defaultHitboxes,hitboxCorners,type HitEdits} from './hitbox-model';
+import capsuleEdits from './capsule-overrides.json';
+import { capsulePolygon } from './hurtcapsule';
+import type {CapsuleEdit} from './capsule-model';
 import { capsulesFor } from './hurtcapsule';
 import type {Point,BodyRegion,HurtPolygon} from './collision-types';
 export type {Point,BodyRegion,HurtPolygon} from './collision-types';
@@ -34,6 +39,8 @@ export function overlap(a: Box, b: Box): Box | undefined {
 export type Contact = Box & { region: BodyRegion };
 export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:20,walk:5};
 export function attackTiming<T extends Timing>(f:Fighter,timing:T,action:Action=f.action):T{
+ if(f.collisionSkin==='yuki'&&action==='sword_attack')return {...timing,duration:.6,active:26*.6/62,activeEnd:46*.6/62};
+ if(f.collisionSkin==='an'&&action==='sword_attack')return {...timing,duration:.6,active:25*.6/62,activeEnd:50*.6/62};
  if(f.collisionSkin&&action==='attack'&&timing.duration!==.28){
   const ratio=.28/timing.duration;
   return {...timing,duration:.28,active:timing.active*ratio,activeEnd:timing.activeEnd*ratio};
@@ -55,6 +62,8 @@ export function worldPoint(f: Fighter, p: Point): Point {
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
+ if(f.collisionSkin==='yuki'&&f.action==='sword_attack'&&f.superTime===undefined)return ((capsuleEdits as Record<string,CapsuleEdit[]>)[`yuki/sword_attack/${Math.min(61,Math.floor(f.time*62/.6))}`]?.map(e=>capsulePolygon('yuki','idle',0,e))??capsulesFor('yuki','idle',0)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
+ if(f.collisionSkin==='an'&&f.action==='sword_attack'&&f.superTime===undefined)return ((capsuleEdits as Record<string,CapsuleEdit[]>)[`an/sword_attack/${Math.min(61,Math.floor(f.time*62/.6))}`]?.map(e=>capsulePolygon('an','idle',0,e))??capsulesFor('an','idle',0)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
  if(f.collisionSkin&&f.superTime!==undefined)return (f.collisionSkin==='an'?anHurtboxes(f.superTime):superHurtboxes(f.superTime)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt))}));
  return capsulesFor(f.collisionSkin??f.character,f.action,f.collisionSkin&&f.action==='kick'&&timing?attackFrame(f.time,timing.active,timing.duration,9):poseFrame(f,timing)).map(p=>({...p,points:p.points.map(pt=>worldPoint(f,pt)),holes:p.holes?.map(h=>h.map(pt=>worldPoint(f,pt)))}));
 }
@@ -107,6 +116,8 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   if(f.hp<=0)return [];
   if(f.collisionSkin&&f.superTime!==undefined){const strike=f.collisionSkin==='an'?anStrike(f.superTime):superStrike(f.superTime);return strike?[worldBox(f,strike.box)]:[];}
+  if(f.collisionSkin==='yuki'&&f.action==='sword_attack')return ((hitEdits as HitEdits)[`yuki/sword_attack/${Math.min(61,Math.floor(f.time*62/.6))}`]??yukiSlashHitboxes(f.time)).map(b=>worldBox(f,b));
+  if(f.collisionSkin==='an'&&f.action==='sword_attack')return ((hitEdits as HitEdits)[`an/sword_attack/${Math.min(61,Math.floor(f.time*62/.6))}`]??anSlashHitboxes(f.time)).map(b=>worldBox(f,b));
   if (!timing) return [];
   timing=attackTiming(f,timing);
   // Nine-frame anime kicks: frame4 starts at .12, frame7 ends at .304.
