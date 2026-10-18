@@ -121,7 +121,7 @@ export function polygonContact(hit:Box,poly:HurtPolygon):Contact|undefined{
 }
 export function getHitboxes(f: Fighter, timing?: Timing): Box[] {
   if(f.hp<=0)return [];
-  if(f.collisionSkin==='an'&&f.ultiTime!==undefined){if(f.ultiTime>=4)return [];const edits=anUltiEdits(f.ultiTime)?.hit;if(edits)return edits.map(b=>({...b,x:f.face>0?f.x+b.x-640:f.x-(b.x-640)-b.width,y:b.y+f.y,angle:(b.angle??0)*f.face}));const box=anUltiBeamHitbox(f.ultiTime,f.x,f.y,f.face);return box?[box]:[];}
+  if(f.collisionSkin==='an'&&f.ultiTime!==undefined){if(f.ultiTime<13/25||f.ultiTime>=4)return [];const edits=anUltiEdits(f.ultiTime)?.hit;if(edits)return edits.map(b=>({...b,x:f.face>0?f.x+b.x-640:f.x-(b.x-640)-b.width,y:b.y+f.y,angle:(b.angle??0)*f.face}));const box=anUltiBeamHitbox(f.ultiTime,f.x,f.y,f.face);return box?[box]:[];}
   if(f.collisionSkin==='yuki'&&f.ultiTime!==undefined){if(f.ultiTime>=4)return [];const edits=ultiEdits(f.ultiTime)?.hit;if(edits)return edits.map(b=>({...b,x:f.face>0?f.x+b.x-640:f.x-(b.x-640)-b.width,y:b.y+f.y,angle:(b.angle??0)*f.face}));const box=ultiBeamHitbox(f.ultiTime,f.x,f.y,f.face);return box?[box]:[];}
   if(f.collisionSkin&&f.superTime!==undefined){const strike=f.collisionSkin==='an'?anStrike(f.superTime):superStrike(f.superTime);return strike?[worldBox(f,strike.box)]:[];}
   if(f.collisionSkin==='yuki'&&f.action==='sword_attack')return ((hitEdits as HitEdits)[`yuki/sword_attack/${Math.min(61,Math.floor(f.time*62/.6))}`]??yukiSlashHitboxes(f.time)).map(b=>worldBox(f,b));
