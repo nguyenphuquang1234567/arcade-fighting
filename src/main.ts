@@ -1,3 +1,4 @@
+import anUltiSeams from './an-ulti-seams.json';
 import {AN_ULTI_SCALE,AN_ULTI_ORIGIN_X,AN_ULTI_ORIGIN_Y} from './an-ulti';
 import {ULTI_SCALE,ULTI_ORIGIN_X,ULTI_ORIGIN_Y} from './yuki-ulti';
 import {fighterDepth} from './fighter-layer';
@@ -112,8 +113,9 @@ class Dojo extends Phaser.Scene{
  if(this.textures.exists(`${skin}-ulti-${requestedPage}`)&&this.textures.exists(`${skin}-ulti-beam-${requestedPage}`))this.ultiShownFrames[skin]=requested;
  const index=this.ultiShownFrames[skin],page=Math.floor(index/4),key=`${skin}-ulti-${page}`,beam=`${skin}-ulti-beam-${page}`,scale=skin==='an'?AN_ULTI_SCALE:ULTI_SCALE,ox=skin==='an'?AN_ULTI_ORIGIN_X:ULTI_ORIGIN_X,oy=skin==='an'?AN_ULTI_ORIGIN_Y:ULTI_ORIGIN_Y;
  if(!this.textures.exists(key)||!this.textures.exists(beam))continue;
- this.sprites[i].setTexture(key,index%4).setCrop(0,0,672,432).setFlipX(false).setScale(f.face*scale,scale).setOrigin(ox/768,oy/432).setDepth(5);
- const extension=this.ultiBeams[skin]??(this.ultiBeams[skin]=this.add.image(0,0,beam)),x=f.x+f.face*(672-ox)*scale,width=f.face>0?Math.max(0,1280-x):Math.max(0,x);extension.setTexture(beam,index%4).setVisible(true).setDepth(5).setOrigin(f.face>0?0:1,0).setFlipX(f.face<0).setPosition(x,SPRITE_BASELINE+f.y-oy*scale).setDisplaySize(width,432*scale);
+ const seam=skin==='an'?((anUltiSeams as Record<string,number>)[index]??672):672;
+ this.sprites[i].setTexture(key,index%4).setCrop(0,0,seam,432).setFlipX(false).setScale(f.face*scale,scale).setOrigin(ox/768,oy/432).setDepth(5);
+ const extension=this.ultiBeams[skin]??(this.ultiBeams[skin]=this.add.image(0,0,beam)),x=f.x+f.face*(seam-ox)*scale,width=f.face>0?Math.max(0,1280-x):Math.max(0,x);extension.setTexture(beam,index%4).setVisible(true).setDepth(5).setOrigin(f.face>0?0:1,0).setFlipX(f.face<0).setPosition(x,SPRITE_BASELINE+f.y-oy*scale).setDisplaySize(width,432*scale);
  }
  combat.fighters.forEach((f,i)=>{if(f.ultiTime===undefined&&combat.fighters[1-i].ultiTime!==undefined)this.sprites[i].setDepth(6)});
  }
