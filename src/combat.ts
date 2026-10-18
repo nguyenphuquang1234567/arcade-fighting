@@ -7,7 +7,7 @@ export type Input={move:number,jump:boolean,guard:boolean,ulti?:boolean,super?:b
 export type Fighter={ultiCharge:number,ultiTime?:number,ultiHit?:boolean,ultiLastHitTime?:number,superCharge:number,superTime?:number,superHitStages?:number[],collisionSkin?:'yuki'|'an',character:'moon'|'ember',x:number,y:number,vy:number,hp:number,energy:number,face:number,action:Action,time:number,duration:number,hit:boolean,guard:boolean,wins:number};
 export const attacks:Partial<Record<Action,{damage:number,cost:number,duration:number,active:number,activeEnd:number}>>={attack:{damage:9,cost:8,duration:.36,active:.13,activeEnd:.21},kick:{damage:14,cost:15,duration:.4,active:.16,activeEnd:.24},sword_attack:{damage:23,cost:28,duration:.6,active:.274,activeEnd:.48},ground_slide:{damage:11,cost:20,duration:.5,active:.2,activeEnd:.4}};
 export const MAX_HP=200;
-export const ANIME_MAX_HP=250;
+export const ANIME_MAX_HP=300;
 export function maxHp(f:Pick<Fighter,'collisionSkin'>){return f.collisionSkin?ANIME_MAX_HP:MAX_HP;}
 export const ANIME_DEATH_FRAMES=11;
 export const ANIME_DEATH_DURATION=6;
