@@ -9,7 +9,7 @@ function poly(points,color){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p
 
 const draftKey='dojo-an-ulti-box-draft-v1';let dirty={};try{dirty=JSON.parse(localStorage.getItem(draftKey)||'{}')}catch{}const inputs={};let drag,lastFields='';
 const fighter=i=>({x:640,y:0,face:1,hp:250,collisionSkin:'an',action:'idle',time:0,ultiTime:(i+.5)/25});
-function boxes(i,kind){if(dirty[i]?.[kind])return dirty[i][kind];if(ultiBoxEdits[i]?.[kind])return ultiBoxEdits[i][kind];const f=fighter(i);if(kind==='hit')return getHitboxes(f);return getHurtboxes(f).map(p=>{const xs=p.points.map(p=>p.x),ys=p.points.map(p=>p.y);return {x:Math.min(...xs),y:Math.min(...ys),width:Math.max(...xs)-Math.min(...xs),height:Math.max(...ys)-Math.min(...ys),angle:0}})}
+function boxes(i,kind){if(kind==='hit'&&i<13)return [];if(dirty[i]?.[kind])return dirty[i][kind];if(ultiBoxEdits[i]?.[kind])return ultiBoxEdits[i][kind];const f=fighter(i);if(kind==='hit')return getHitboxes(f);return getHurtboxes(f).map(p=>{const xs=p.points.map(p=>p.x),ys=p.points.map(p=>p.y);return {x:Math.min(...xs),y:Math.min(...ys),width:Math.max(...xs)-Math.min(...xs),height:Math.max(...ys)-Math.min(...ys),angle:0}})}
 function selected(){const i=+slider.value-1,kind=document.querySelector('#kind').value,index=+document.querySelector('#part').value;return {i,kind,index,b:boxes(i,kind)[index]}}
 function remember(){localStorage.setItem(draftKey,JSON.stringify(dirty));document.querySelector('#status').textContent='Bản nháp đã lưu trên trình duyệt; chưa lưu game';lastFields=''}
 function edit(change){const {i,kind,index,b}=selected();if(!b)return;const arr=boxes(i,kind).map(b=>({...b}));arr[index]={...b,...change};dirty[i]={...dirty[i],[kind]:arr};remember()}
