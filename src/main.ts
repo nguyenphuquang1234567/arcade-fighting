@@ -113,9 +113,19 @@ class Dojo extends Phaser.Scene{
  if(this.textures.exists(`${skin}-ulti-${requestedPage}`)&&this.textures.exists(`${skin}-ulti-beam-${requestedPage}`))this.ultiShownFrames[skin]=requested;
  const index=this.ultiShownFrames[skin],page=Math.floor(index/4),key=`${skin}-ulti-${page}`,beam=`${skin}-ulti-beam-${page}`,scale=skin==='an'?AN_ULTI_SCALE:ULTI_SCALE,ox=skin==='an'?AN_ULTI_ORIGIN_X:ULTI_ORIGIN_X,oy=skin==='an'?AN_ULTI_ORIGIN_Y:ULTI_ORIGIN_Y;
  if(!this.textures.exists(key)||!this.textures.exists(beam))continue;
+ if(skin==='an'&&index<13){this.sprites[i].setTexture(key,index%4).setCrop().setFlipX(false).setScale(f.face*scale,scale).setOrigin(ox/768,oy/432).setDepth(5);continue;}
  const seam=skin==='an'?((anUltiSeams as Record<string,number>)[index]??672):672;
  this.sprites[i].setTexture(key,index%4).setCrop(0,0,seam,432).setFlipX(false).setScale(f.face*scale,scale).setOrigin(ox/768,oy/432).setDepth(5);
- const extension=this.ultiBeams[skin]??(this.ultiBeams[skin]=this.add.image(0,0,beam)),x=f.x+f.face*(seam-ox)*scale,width=f.face>0?Math.max(0,1280-x):Math.max(0,x);extension.setTexture(beam,index%4).setVisible(true).setDepth(5).setOrigin(f.face>0?0:1,0).setFlipX(f.face<0).setPosition(x,SPRITE_BASELINE+f.y-oy*scale).setDisplaySize(width,432*scale);
+ if(skin==='yuki'||skin==='an'){
+ const x=f.x+f.face*(seam-ox)*scale,width=Math.max(0,f.face>0?1280-x:x),pixels=Math.max(1,Math.ceil(width/scale)),canvasKey=`${skin}-ulti-tiled-extension`;
+ let texture=this.textures.get(canvasKey) as Phaser.Textures.CanvasTexture;
+ if(!this.textures.exists(canvasKey))texture=this.textures.createCanvas(canvasKey,pixels,432)!;
+ const stamp=`${index}/${pixels}`;
+ if((texture as any).__beamStamp!==stamp){texture.setSize(pixels,432);const ctx=texture.context;ctx.clearRect(0,0,pixels,432);const source=this.textures.get(key).getSourceImage() as HTMLImageElement;
+ for(let offset=0,tile=0;offset<pixels;offset+=96,tile++){ctx.save();ctx.translate(offset+(tile%2===0?96:0),0);ctx.scale(tile%2===0?-1:1,1);ctx.drawImage(source,index%2*768+seam-96,Math.floor(index%4/2)*432,96,432,0,0,96,432);ctx.restore();}texture.refresh();(texture as any).__beamStamp=stamp;}
+ const extension=this.ultiBeams[skin]??(this.ultiBeams[skin]=this.add.image(0,0,canvasKey));extension.setTexture(canvasKey).setVisible(true).setDepth(5).setOrigin(0,0).setFlipX(false).setPosition(x,SPRITE_BASELINE+f.y-oy*scale).setScale(f.face*scale,scale);continue;
+ }
+
  }
  combat.fighters.forEach((f,i)=>{if(f.ultiTime===undefined&&combat.fighters[1-i].ultiTime!==undefined)this.sprites[i].setDepth(6)});
  }
