@@ -1,0 +1,37 @@
+name: Clean up old Vercel deployments
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview deletions without removing deployments'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shadow-game-vercel-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted main branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Keep three Production releases and remove old previews and failures
+        env:
+          VERCEL_CLEANUP_TOKEN: ${{ secrets.VERCEL_CLEANUP_TOKEN }}
+          CLEANUP_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+        run: node scripts/cleanup-vercel.mjs

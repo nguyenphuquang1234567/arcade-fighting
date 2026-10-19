@@ -26,3 +26,9 @@ The game uses saved capsule layouts in `src/capsule-overrides.json` for both fig
 Open `/capsule-preview.html` to select each frame, add/delete capsules, drag them, and change width or rotation. Yellow capsules mark the head, green capsules mark the body. **Lưu mã nguồn (dev)** saves to the project through a loopback-only Vite endpoint. Commit/push separately to publish edits. Press H in the game to view actual hurtboxes and red active attack boxes.
 
 Run `npm test` for combat and capsule checks; `npm run build` builds the game and capsule editor. Run animation plays at 10 FPS; sword duration is 0.7 seconds and slide is 0.5 seconds.
+
+### Automatic Vercel cleanup
+
+`.github/workflows/cleanup-vercel.yml` runs after a successful Vercel **Production** deployment. It verifies the event against the current Vercel production and keeps the three newest successful Production deployments. It removes older successful Production deployments, Preview deployments, and failed/canceled deployments created before the triggering release. Production deployments with aliases remain protected; deployments still building or queued are never removed. Cleanup stops if production changes during the run.
+
+The workflow uses the repository secret `VERCEL_CLEANUP_TOKEN`, scoped in code to the `shadow-game` project. Never put this token in source files. The workflow checks out trusted `main`, not the deployment's source branch. Manual runs default to dry-run mode. Run `node scripts/test-cleanup-vercel.mjs` to check deletion safeguards.
