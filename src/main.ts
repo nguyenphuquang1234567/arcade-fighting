@@ -1,3 +1,4 @@
+import {inject} from '@vercel/analytics';
 import anUltiSeams from './an-ulti-seams.json';
 import {AN_ULTI_SCALE,AN_ULTI_ORIGIN_X,AN_ULTI_ORIGIN_Y} from './an-ulti';
 import {ULTI_SCALE,ULTI_ORIGIN_X,ULTI_ORIGIN_Y} from './yuki-ulti';
@@ -9,6 +10,9 @@ import './style.css';
 import {hitboxCorners} from './hitbox-model';
 import {getHitboxes, getHurtboxes, SPRITE_SCALE, SPRITE_BASELINE, poseFrame} from './geometry';
 import {fighters, actions, frameCounts, frameCount, spriteFile, attackFrame} from './fighters';
+
+// Initialize Vercel Web Analytics
+inject();
 const $=(id:string)=>document.getElementById(id)!;
 const combat=new Combat();let mode='bot',paused=false,sound=true,showBoxes=false,scene:Dojo;
 const isAnMode=()=>mode==='an'||mode==='an-local'||mode==='an-local-training'||mode==='an-training';

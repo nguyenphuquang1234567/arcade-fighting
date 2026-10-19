@@ -1,8 +1,12 @@
+import {inject} from '@vercel/analytics';
 import {editorFrameCount,editorSprite,editorActions,poseIndex,poseCharacter,type EditorCharacter} from './yuki-assets';
 import type {Action} from './combat';
 import sourceEdits from './capsule-overrides.json';
 import {validateCapsules,type CapsuleEdits} from './capsule-model';
 import {hurtboxPoses} from './hurtbox-poses';
+
+// Initialize Vercel Web Analytics
+inject();
 const who=document.querySelector<HTMLSelectElement>('#who')!,action=document.querySelector<HTMLSelectElement>('#action')!,frame=document.querySelector<HTMLInputElement>('#frame')!,width=document.querySelector<HTMLInputElement>('#width')!,canvas=document.querySelector<HTMLCanvasElement>('#canvas')!,ctx=canvas.getContext('2d')!;
 const requestedCharacter=new URLSearchParams(location.search).get('character');
 if(requestedCharacter&&Array.from(who.options).some(o=>o.value===requestedCharacter))who.value=requestedCharacter;

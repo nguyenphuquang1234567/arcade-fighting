@@ -1,8 +1,12 @@
+import {inject} from '@vercel/analytics';
 import {editorFrameCount,editorSprite,type EditorCharacter} from './yuki-assets';
 import {frameCounts,spriteFile} from './fighters';
 import type {Action} from './combat';
 import source from './hitbox-overrides.json';
 import {defaultHitboxes,hitboxCorners,strikes,validateHitboxes,type HitEdits,type HitBox} from './hitbox-model';
+
+// Initialize Vercel Web Analytics
+inject();
 const el=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
 const who=el<HTMLSelectElement>('who'),action=el<HTMLSelectElement>('action'),frame=el<HTMLInputElement>('frame'),picker=el<HTMLSelectElement>('box'),canvas=el<HTMLCanvasElement>('canvas'),ctx=canvas.getContext('2d')!,storage='dojo-hitbox-draft-v1';
 let edits:HitEdits=structuredClone(source),selected=0,sequence=0;

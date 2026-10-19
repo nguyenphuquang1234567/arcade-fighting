@@ -8,11 +8,12 @@
     "test": "node scripts/test-combat.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "phaser": "^3.90.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "typescript": "^5.9.0",
-    "vite": "^7.1.0",
-    "@playwright/test": "^1.55.0"
+    "vite": "^7.1.0"
   }
 }
