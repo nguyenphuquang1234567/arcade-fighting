@@ -10,7 +10,7 @@ export function editorFrameCount(c:EditorCharacter,a:Action){
 }
 export function editorSprite(c:EditorCharacter,a:Action,frame=0){
  if(c==='yuki'&&a==='death')return `death-pages-105/${Math.floor(frame/8)}.png`;
- if(c==='an'&&a==='death')return `death-pages-120/${Math.floor(frame/8)}.png`;
+ if(c==='an'&&a==='death')return `death-pages-145/${Math.floor(frame/8)}.png`;
  if(c==='an')return anActions.includes(a)?`${a}.png`:'idle.png';
  return c==='yuki'?(a==='kick'?'kick-user-9.png':yukiActions.includes(a)?`${a}.png`:'idle.png'):spriteFile(c,a);
 }
