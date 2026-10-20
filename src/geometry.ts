@@ -43,7 +43,7 @@ export function overlap(a: Box, b: Box): Box | undefined {
 export type Contact = Box & { region: BodyRegion };
 export const POSE_FPS: Partial<Record<Action, number>> = {idle:3,run:20,walk:5};
 export function attackTiming<T extends Timing>(f:Fighter,timing:T,action:Action=f.action):T{
- if(f.collisionSkin==='yuki'&&action==='sword_attack')return {...timing,duration:.6,active:26*.6/62,activeEnd:46*.6/62};
+ if(f.collisionSkin==='yuki'&&action==='sword_attack')return {...timing,duration:.6,active:26*.6/62,activeEnd:50*.6/62};
  if(f.collisionSkin==='an'&&action==='sword_attack')return {...timing,duration:.6,active:25*.6/62,activeEnd:50*.6/62};
  if(f.collisionSkin&&action==='attack'&&timing.duration!==.28){
   const ratio=.28/timing.duration;
