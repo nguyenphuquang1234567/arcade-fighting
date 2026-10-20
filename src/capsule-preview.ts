@@ -8,6 +8,7 @@ const requestedCharacter=new URLSearchParams(location.search).get('character');
 if(requestedCharacter&&Array.from(who.options).some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
 function refreshActions(){const current=action.value;action.replaceChildren(...editorActions(who.value as EditorCharacter).map(a=>new Option(a,a)));if(Array.from(action.options).some(o=>o.value===current))action.value=current}
 refreshActions();
+const requestedAction=new URLSearchParams(location.search).get('action');if(requestedAction&&Array.from(action.options).some(o=>o.value===requestedAction))action.value=requestedAction;
 let sequence=0;
 const storageKey='dojo-capsule-draft-v1';
 const head=()=>({x:0,y:0,width:70,angle:0,part:'head' as const});
@@ -89,7 +90,7 @@ save.onclick=async()=>{
 };
 let visible:{key:string,x1:number,y1:number,x2:number,y2:number,r:number,index:number}[]=[];
 let dragging:{id:number,index:number,key:string,startX:number,startY:number,x:number,y:number}|undefined;
-const position=(e:PointerEvent)=>{const rect=canvas.getBoundingClientRect();return{x:(e.clientX-rect.left)*512/rect.width,y:(e.clientY-rect.top)*512/rect.height}};
+const position=(e:PointerEvent)=>{const rect=canvas.getBoundingClientRect();const ratio=who.value==='yuki'&&action.value==='run'?(.578/.6):1;return{x:256+((e.clientX-rect.left)*512/rect.width-256)/ratio-((who.value==='an'||who.value==='yuki')&&action.value==='jump'?(who.value==='an'?17.5:46):0),y:512+((e.clientY-rect.top)*512/rect.height-512)/ratio-((who.value==='an'||who.value==='yuki')&&action.value==='jump'?17:0)}};
 canvas.style.touchAction='none';
 canvas.onpointerdown=e=>{
  const q=position(e);
@@ -109,7 +110,7 @@ canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.style.cursor='gra
 async function draw(){
  const token=++sequence,a=action.value as Action,c=who.value as EditorCharacter;frame.max=String(editorFrameCount(c,a));frame.value=String(Math.max(1,Math.min(editorFrameCount(c,a),Number(frame.value))));const i=Number(frame.value)-1;controls();
  const image=new Image();image.src=`/characters/${c}/${editorSprite(c,a,i)}`;await image.decode();if(token!==sequence)return;
- const wideDeath=false;const columns=wideDeath?4:image.width/512;const cellWidth=wideDeath?896:512;ctx.clearRect(0,0,512,512);ctx.drawImage(image,(((c==='an'||c==='yuki')&&a==='death'?i%8:i)%columns)*cellWidth+(who.value==='yuki'&&wideDeath?192:0),Math.floor(((c==='an'||c==='yuki')&&a==='death'?i%8:i)/columns)*512,512,512,0,0,512,512);
+ const wideDeath=false;const columns=wideDeath?4:image.width/512;const cellWidth=wideDeath?896:512;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,512,512);if(c==='yuki'&&a==='run'){ctx.translate(256,512);ctx.scale(.578/.6,.578/.6);ctx.translate(-256,-512);}if((c==='an'||c==='yuki')&&a==='jump')ctx.translate(c==='an'?17.5:46,17);ctx.drawImage(image,(((c==='an'||c==='yuki')&&a==='death'?i%8:i)%columns)*cellWidth+(who.value==='yuki'&&wideDeath?192:0),Math.floor(((c==='an'||c==='yuki')&&a==='death'?i%8:i)/columns)*512,512,512,0,0,512,512);
  const p=hurtboxPoses[poseCharacter(c)][a][poseIndex(c,a,authoredFrame())].map(v=>v*3.2);visible=[];
  for(const [index,offset] of capsules().entries()){const r=offset.width/2;
  // One rounded capsule remains near the torso, rather than following an extended kicking foot.

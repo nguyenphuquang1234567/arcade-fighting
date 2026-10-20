@@ -62,7 +62,9 @@ export function poseFrame(f: Fighter, timing?: Timing): number {
   return ['idle','walk','run'].includes(f.action)?frame%count:Math.min(count-1,frame);
 }
 export function worldPoint(f: Fighter, p: Point): Point {
-  return {x:f.x+f.face*(p.x-256)*SPRITE_SCALE,y:SPRITE_BASELINE+f.y+(p.y-512)*SPRITE_SCALE};
+  const scale=f.collisionSkin==='yuki'&&f.action==='run'&&f.superTime===undefined?.578:SPRITE_SCALE;
+  const jump=f.collisionSkin&&f.action==='jump'&&f.superTime===undefined;const dx=jump?(f.collisionSkin==='an'?17.5:46):0,dy=jump?17:0;
+  return {x:f.x+f.face*(p.x-256+dx)*scale,y:SPRITE_BASELINE+f.y+(p.y-512+dy)*scale};
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];
