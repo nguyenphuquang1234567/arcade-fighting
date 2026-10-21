@@ -26,8 +26,8 @@ export class Combat{
  if(input.ulti&&f.collisionSkin&&f.ultiCharge>=100&&f.duration===0&&f.superTime===undefined){f.ultiCharge=0;f.ultiTime=0;this.onUlti?.(f);f.ultiHit=false;f.ultiLastHitTime=0;f.action='idle';f.time=0;f.guard=false;f.hit=true;return;}
  if(f.superTime!==undefined){f.superTime+=dt;f.guard=false;if(f.superTime>=1.5){f.superTime=undefined;f.action='idle';f.time=0;}else{f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}}
  if(input.super&&f.collisionSkin&&f.superCharge>=100&&f.duration===0){f.superCharge=0;f.superTime=0;f.superHitStages=[];f.action='idle';f.time=0;f.guard=false;f.hit=true;f.x=Math.max(90,Math.min(1190,f.x+input.move*290*dt));f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;return;}
- if(f.duration===0){if(input.jump&&f.y===0){f.vy=-890;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attackTiming(f,attacks[input.attack]!,input.attack);if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
- if(f.duration===0){f.x+=input.move*(f.guard?90:290)*dt;const next=f.y<0||f.vy<0?'jump':input.move?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
+ if(f.duration===0){if(input.jump&&!f.guard&&f.y===0){f.vy=-890;f.action='jump';f.time=0}if(input.attack&&attacks[input.attack]&&!f.guard){const a=attackTiming(f,attacks[input.attack]!,input.attack);if(f.energy>=a.cost){if(!this.training)f.energy-=a.cost;f.action=input.attack;f.duration=a.duration;f.time=0;f.hit=false;this.onAttack?.(f.action);}}
+ if(f.duration===0){if(!f.guard)f.x+=input.move*290*dt;const next=f.y<0||f.vy<0?'jump':input.move&&!f.guard?'run':'idle';if(f.action!==next){f.action=next;f.time=0}}}
  if(f.action==='ground_slide')f.x+=f.face*360*dt;
  f.vy+=1800*dt;f.y=Math.min(0,f.y+f.vy*dt);if(f.y===0)f.vy=0;f.x=Math.max(90,Math.min(1190,f.x));
  });
