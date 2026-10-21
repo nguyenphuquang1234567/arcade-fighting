@@ -60,19 +60,21 @@ export class Combat{
  if(!this.training&&(a.hp<=0||b.hp<=0)){const winner=a.hp===b.hp?-1:a.hp>b.hp?0:1;if(winner>=0)this.fighters[winner].wins++;const finished=this.fighters.some(f=>f.wins>=2);this.phase=finished?'over':'roundover';this.delay=0;this.onRound?.(winner,finished)}
  }
 }
-// Stronger bot: quicker approach and pressure, with imperfect defensive reactions.
+// Anime bots use a faster offensive cadence; defensive reactions retain the original clock.
 export function bot(c:Combat,now:number):Input{
  const f=c.fighters[1],p=c.fighters[0],distance=Math.abs(p.x-f.x);
- const cycle=Math.floor(now/850),window=now%850;
+ const anime=!!f.collisionSkin,period=anime?500:850;
+ const cycle=Math.floor(now/period),window=now%period,decisionStart=anime?120:300;
+ const defenseCycle=Math.floor(now/850);
  const useUlti=!!f.collisionSkin&&f.ultiCharge>=100&&f.ultiTime===undefined&&f.superTime===undefined&&f.duration===0&&p.hp>0&&Math.abs(p.y-f.y)<140;
  const useSuper=!useUlti&&f.ultiTime===undefined&&!!f.collisionSkin&&f.superCharge>=100&&f.superTime===undefined&&f.duration===0&&p.hp>0&&distance<170&&Math.abs(p.y-f.y)<110;
  return {
   ulti:useUlti,
   super:useSuper,
   move:distance>120?Math.sign(p.x-f.x):distance<75&&cycle%4===0?-Math.sign(p.x-f.x)*.65:0,
-  jump:distance>200&&cycle%5===0&&window>=300&&window<380,
-  guard:!useUlti&&!useSuper&&!!attacks[p.action]&&distance<220&&p.time>.10&&cycle%5===0,
-  attack:!useUlti&&!useSuper&&distance<190&&window>=300&&window<400
+  jump:distance>200&&cycle%5===0&&window>=decisionStart&&window<decisionStart+80,
+  guard:!useUlti&&!useSuper&&!!attacks[p.action]&&distance<220&&p.time>.10&&defenseCycle%5===0,
+  attack:!useUlti&&!useSuper&&distance<190&&window>=decisionStart&&window<decisionStart+100
    ?(['attack','kick','attack','ground_slide','sword_attack'] as Action[])[cycle%5]
    :undefined
  };
