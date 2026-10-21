@@ -77,3 +77,27 @@
 @keyframes super-ready-beacon{to{box-shadow:0 0 8px #e2ffff,0 0 23px #65f3ffdd,0 0 35px #26c9ed88}}
 @keyframes ulti-ready-beacon{to{box-shadow:0 0 8px #fff0ff,0 0 23px #e2acffdd,0 0 35px #b060f088}}
 @media(prefers-reduced-motion:reduce){.ability-row .super-meter.ready,.ability-row .ulti-meter.ready{animation:none}}
+
+/* Compact phone HUD without shrinking touch controls or the arena. */
+@media(orientation:landscape) and (max-height:600px) and (max-width:1100px),(orientation:landscape) and (pointer:coarse){
+ #hud{left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr);gap:9px}
+ .fighter-card{grid-template-columns:35px minmax(0,1fr);gap:6px;padding:5px}
+ .right .fighter-card{padding:5px}
+ .portrait-frame{width:34px;height:45px}
+ .portrait-frame b{font-size:5px;padding:1px}
+ .name{font-size:9px;margin-bottom:3px}
+ .vital-row{gap:4px}.health{height:11px}.hp-value{font-size:13px}.hp-value small{font-size:6px}
+ .energy{margin-top:3px}.ability-row{gap:3px;margin-top:4px}
+ .ability-row .super-meter{height:18px;padding:0 5px;gap:5px}
+ .ability-row .super-meter em{font-size:7px;letter-spacing:.5px}
+ .ability-row .super-meter span{font-size:8px}.ability-row .super-meter.ready span{font-size:7px}
+ .ability-row .super-meter kbd{font-size:7px;padding:1px 3px}
+ .clock{gap:4px}.clock small{font-size:6px}.timer-seal{width:29px;height:29px}.timer-seal strong{font-size:23px}.clock-caption{display:none}
+ .round-token{width:18px;height:16px;font-size:9px}.round-token.won{font-size:12px}
+}
+@media(orientation:portrait) and (max-width:750px){
+ .fighter-card,.right .fighter-card{padding:3px}
+ .name{font-size:6px;margin-bottom:2px}.health{height:8px}.hp-value{font-size:10px}
+ .ability-row .super-meter{height:15px}.ability-row{gap:2px}
+ .round-token{width:13px;height:12px;font-size:7px}.round-token.won{font-size:9px}
+}
