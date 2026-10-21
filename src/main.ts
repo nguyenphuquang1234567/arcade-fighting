@@ -50,7 +50,7 @@ function moveStick(e:PointerEvent){
  const wasJump=stickKeys.has('KeyW');stickKeys.clear();
  const dead=max*.25;
  if(dx>dead)stickKeys.add('KeyD');else if(dx<-dead)stickKeys.add('KeyA');
- if(dy>dead)stickKeys.add('KeyS');else if(dy<-dead){stickKeys.add('KeyW');if(!wasJump)pressed.add('KeyW')}
+ if(dy<-dead){stickKeys.add('KeyW');if(!wasJump)pressed.add('KeyW')}
 }
 stick.addEventListener('pointerdown',e=>{
  e.preventDefault();if(stickPointer!==undefined||combat.phase!=='fight'||paused)return;

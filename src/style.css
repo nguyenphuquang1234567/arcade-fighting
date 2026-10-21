@@ -101,3 +101,7 @@
  .ability-row .super-meter{height:15px}.ability-row{gap:2px}
  .round-token{width:13px;height:12px;font-size:7px}.round-token.won{font-size:9px}
 }
+.touch-movement{display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:auto}
+#touch-controls #touch-block{width:96px;min-height:42px;border:1px solid #d8c298a6;border-radius:8px;background:#162939e8;color:#f0dcba;font-size:11px;letter-spacing:1.2px;font-weight:700;touch-action:none;opacity:.9}
+#touch-controls #touch-block.held{background:#e7c58f;color:#102331;box-shadow:0 0 13px #e7c58f66;border-color:#fff1cc}
+@media(orientation:landscape) and (max-height:600px) and (max-width:1100px),(orientation:landscape) and (pointer:coarse){.touch-movement{gap:7px}#touch-controls #touch-block{width:88px;min-height:40px;font-size:10px}}
