@@ -1,0 +1,10 @@
+LAYOUT CONTRACT (positions in percent of the image: x from the left edge, y from the top edge)
+- Canvas: 1536x864 px (landscape, aspect 1.78); keep the fixed camera and framing of the attached layout guide.
+- Walkable ground: x0%-100%, y83%-100%; broad, flat, dry and open. Outline: (0%, 83%), (100%, 83%), (100%, 100%), (0%, 100%).
+- Playable band y83%-100%, walkable from x0% to x100%: keep it open, level and unobstructed.
+- Clear standing spots (paint nothing on them): hero 1 x28% y91%; enemy 1 x72% y91%.
+- Keep open for walking: x50% y91%.
+- Forbidden on the walkable ground (anywhere): people, characters, creatures or silhouettes; trees, tall shrubs, grass clumps or hedges; lamps, lanterns, pillars, posts or statues; furniture, tables, crates, barrels or piles; stairs, steps, ledges or raised platforms; walls, fences, railings, gates or balustrades; ponds, puddles, wells or streams; boats, carts or vehicles; loose items: tools, bottles, rope, debris or pickups; large cast shadows; text, signs, symbols, labels or UI.
+- No people, characters, creatures or silhouettes are painted into the plate; actors are separate runtime sprites.
+- No collectibles or loose pickups are painted; they are separate runtime sprites.
+- The layout guide shows geometry only: do not copy its colours, outlines, dots, grid, numbers or labels; paint one continuous scene.

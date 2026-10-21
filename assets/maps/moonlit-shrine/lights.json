@@ -1,0 +1,74 @@
+{
+  "schema": "generate2dmap.lights.v1",
+  "tool": {
+    "name": "extract_scene_lights",
+    "version": "0.4.0"
+  },
+  "plate": {
+    "path": "source.png",
+    "sha256": "799f03aa3f33575c01d090599713a290aa68e01ef10252cd04e78a76befd9361",
+    "bytes": 2551070
+  },
+  "sourceSize": [
+    1672,
+    941
+  ],
+  "radiusUnit": "plate-width",
+  "ambient": "#243044",
+  "cookie": "light-cookie.png",
+  "cookieSize": [
+    512,
+    288
+  ],
+  "cookieSha256": "8c10f97ddb72395bb85719b42e7f006c92db27c1c3756c5ccc70aae420e77a7b",
+  "lights": [
+    {
+      "id": "L1",
+      "u": 0.0317,
+      "v": 0.41975,
+      "color": "#ff7b33",
+      "radius": 0.09278,
+      "strength": 0.76449
+    },
+    {
+      "id": "L2",
+      "u": 0.94627,
+      "v": 0.51166,
+      "color": "#ff832e",
+      "radius": 0.07899,
+      "strength": 0.773
+    },
+    {
+      "id": "L3",
+      "u": 0.11561,
+      "v": 0.51185,
+      "color": "#ff6f1a",
+      "radius": 0.06074,
+      "strength": 0.75391
+    },
+    {
+      "id": "L4",
+      "u": 0.25176,
+      "v": 0.5378,
+      "color": "#ff8d50",
+      "radius": 0.05005,
+      "strength": 0.73836
+    },
+    {
+      "id": "L5",
+      "u": 0.82385,
+      "v": 0.58883,
+      "color": "#ff7923",
+      "radius": 0.08375,
+      "strength": 0.72099
+    },
+    {
+      "id": "L6",
+      "u": 0.68331,
+      "v": 0.63293,
+      "color": "#ff6e21",
+      "radius": 0.04724,
+      "strength": 0.73709
+    }
+  ]
+}

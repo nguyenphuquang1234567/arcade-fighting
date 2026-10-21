@@ -1,0 +1,591 @@
+{
+  "schema": "generate2dmap.stage_qa.v1",
+  "status": "needs-visual-review",
+  "method": "validate_stage: stage.v1 structure and cross-field rules; even-odd point-in-polygon tests of each slot and approach point plus 8 footprint-ellipse samples against ground polygons, walk-protected regions and ripple polygons; pixel-centre rasters for effect overlaps; a greedy grid-search layout solver per aspect (cover/contain projection, UI panels, scale ladder, foot-y draw order).",
+  "notProven": [
+    "Geometry is checked against the stage's own polygons; the tool does not see whether the painted plate really has dry, open ground there. Look at stage-overlay.png and the layout renders.",
+    "Actor boxes are rectangles of the given height, aspect and foot anchor, not real silhouettes; the UI panels are the chosen profile, not the game's own HUD unless --ui gives it.",
+    "Layouts are solved at reference viewports (720 px high, 390 px wide in portrait) with the stage's fit and objectPosition; other projections, safe-area insets and depth-dependent actor scale are not modelled.",
+    "A solved layout is one valid answer from a greedy search; the game's own layout code must still place actors on ground (run it, or compare with the solved feet)."
+  ],
+  "checks": [
+    {
+      "id": "ground polygons are simple",
+      "status": "pass",
+      "value": null,
+      "threshold": null
+    },
+    {
+      "id": "slots stand on ground",
+      "status": "pass",
+      "value": null,
+      "threshold": {
+        "footRadius": 0.01,
+        "ySquash": 0.58
+      }
+    },
+    {
+      "id": "slots avoid walk-protected regions",
+      "status": "pass",
+      "value": null,
+      "threshold": {
+        "footRadius": 0.01,
+        "ySquash": 0.58
+      }
+    },
+    {
+      "id": "slots stay off water",
+      "status": "pass",
+      "value": null,
+      "threshold": {
+        "footRadius": 0.01,
+        "ySquash": 0.58
+      }
+    },
+    {
+      "id": "slots inside playableBand",
+      "status": "pass",
+      "value": null,
+      "threshold": [
+        0.8,
+        1.0
+      ]
+    },
+    {
+      "id": "approach points are standable",
+      "status": "pass",
+      "value": null,
+      "threshold": {
+        "footRadius": 0.01,
+        "ySquash": 0.58
+      }
+    },
+    {
+      "id": "slot footprints do not overlap",
+      "status": "pass",
+      "value": null,
+      "threshold": {
+        "footprintPx": [
+          33.44,
+          19.3952
+        ]
+      }
+    },
+    {
+      "id": "effects avoid motion-protected regions",
+      "status": "pass",
+      "value": null,
+      "threshold": null
+    },
+    {
+      "id": "water stays off ground polygons",
+      "status": "pass",
+      "value": null,
+      "threshold": "split the ground polygon around the water: a runtime that tests only groundPolygons would let actors stand in it (validate_stage also tests ripple polygons)"
+    },
+    {
+      "id": "bakedContent declared",
+      "status": "pass",
+      "value": {
+        "painted": []
+      },
+      "threshold": null
+    },
+    {
+      "id": "plate matches sourceSize",
+      "status": "pass",
+      "value": [
+        1672,
+        941
+      ],
+      "threshold": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "layout 16:9 party-vs-enemies",
+      "status": "pass",
+      "value": {
+        "aspect": "16:9",
+        "ratio": 1.7778,
+        "formation": "party-vs-enemies",
+        "viewport": [
+          1280,
+          720
+        ],
+        "inReviewedRange": true,
+        "placed": 2,
+        "unplaced": [],
+        "minScale": 1.0,
+        "drawOrder": [
+          "H1",
+          "E1"
+        ],
+        "errors": []
+      },
+      "threshold": {
+        "reviewedAspectRange": [
+          1.7778,
+          1.7778
+        ],
+        "warnBelowScale": 0.7
+      }
+    },
+    {
+      "id": "layout 19.5:9 party-vs-enemies",
+      "status": "pass",
+      "value": {
+        "aspect": "19.5:9",
+        "ratio": 2.1667,
+        "formation": "party-vs-enemies",
+        "viewport": [
+          1560,
+          720
+        ],
+        "inReviewedRange": false,
+        "placed": 2,
+        "unplaced": [],
+        "minScale": 1.0,
+        "drawOrder": [
+          "H1",
+          "E1"
+        ],
+        "errors": []
+      },
+      "threshold": {
+        "reviewedAspectRange": [
+          1.7778,
+          1.7778
+        ],
+        "warnBelowScale": 0.7
+      }
+    },
+    {
+      "id": "layout 4:3 party-vs-enemies",
+      "status": "pass",
+      "value": {
+        "aspect": "4:3",
+        "ratio": 1.3333,
+        "formation": "party-vs-enemies",
+        "viewport": [
+          960,
+          720
+        ],
+        "inReviewedRange": false,
+        "placed": 2,
+        "unplaced": [],
+        "minScale": 1.0,
+        "drawOrder": [
+          "H1",
+          "E1"
+        ],
+        "errors": []
+      },
+      "threshold": {
+        "reviewedAspectRange": [
+          1.7778,
+          1.7778
+        ],
+        "warnBelowScale": 0.7
+      }
+    },
+    {
+      "id": "layout solves at both ends of reviewedAspectRange",
+      "status": "pass",
+      "value": [
+        {
+          "ratio": 1.7778,
+          "formation": "party-vs-enemies",
+          "viewport": [
+            1280,
+            720
+          ],
+          "unplaced": []
+        },
+        {
+          "ratio": 1.7778,
+          "formation": "party-vs-enemies",
+          "viewport": [
+            1280,
+            720
+          ],
+          "unplaced": []
+        }
+      ],
+      "threshold": [
+        1.7778,
+        1.7778
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "path": "../stage.json",
+      "sha256": "4e3d06e011af6dfdf5ba4e3051580362cb98d414e9938c67b1f3365669d3c28b",
+      "bytes": 928
+    },
+    {
+      "path": "../plate.png",
+      "sha256": "799f03aa3f33575c01d090599713a290aa68e01ef10252cd04e78a76befd9361",
+      "bytes": 2551070
+    }
+  ],
+  "outputs": [
+    {
+      "path": "stage-overlay.png",
+      "sha256": "4863a14551a69b21cade7a1511dfeea3193f4e6173283ab02e76291637e16b2d",
+      "bytes": 2727830
+    },
+    {
+      "path": "layout-16x9.png",
+      "sha256": "031cd29deea8a2d34ef6a2834a548caa6ac6e7470b666175466f129d3aa8f650",
+      "bytes": 1672083
+    },
+    {
+      "path": "layout-19.5x9.png",
+      "sha256": "04849c3f018fc09448ca984ec3fdac40c665e02012f404adc256182aea03340e",
+      "bytes": 1707673
+    },
+    {
+      "path": "layout-4x3.png",
+      "sha256": "5b4eb35c71656362bc9e8b071be4c2940b2bd08b2fa6b5c83addceeb799f1dc0",
+      "bytes": 991245
+    }
+  ],
+  "tool": {
+    "name": "validate_stage",
+    "version": "0.4.0"
+  },
+  "stage": {
+    "sourceSize": [
+      1672,
+      941
+    ],
+    "fit": "contain",
+    "reviewedAspectRange": [
+      1.777777,
+      1.777778
+    ],
+    "objectPosition": [
+      0.5,
+      0.5
+    ],
+    "slots": 2
+  },
+  "settings": {
+    "footRadius": 0.01,
+    "ySquash": 0.58,
+    "minScale": 0.5,
+    "actors": {
+      "hero": {
+        "height": 0.31,
+        "aspect": 0.65,
+        "anchor": [
+          0.5,
+          0.96
+        ]
+      },
+      "enemy": {
+        "height": 0.31,
+        "aspect": 0.65,
+        "anchor": [
+          0.5,
+          0.96
+        ]
+      },
+      "boss": {
+        "height": 0.4,
+        "aspect": 0.65,
+        "anchor": [
+          0.5,
+          0.96
+        ]
+      }
+    },
+    "ui": "none",
+    "minActorPx": 38
+  },
+  "layouts": [
+    {
+      "aspect": "16:9",
+      "ratio": 1.778,
+      "formation": "party-vs-enemies",
+      "render": "layout-16x9.png",
+      "viewport": [
+        1280,
+        720
+      ],
+      "fit": "contain",
+      "scale": 0.765,
+      "offset": [
+        0.34,
+        0.0
+      ],
+      "visibleUv": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "ui": [],
+      "actors": [
+        {
+          "id": "H1",
+          "role": "hero",
+          "slot": [
+            0.28,
+            0.906
+          ],
+          "desired": [
+            358.55,
+            652.32
+          ],
+          "foot": [
+            358.55,
+            652.32
+          ],
+          "footUv": [
+            0.28,
+            0.906
+          ],
+          "box": [
+            286.075,
+            438.24,
+            431.025,
+            661.24
+          ],
+          "sizePx": 223.0,
+          "scale": 1.0,
+          "placed": true,
+          "grounded": true,
+          "movedPx": 0.0
+        },
+        {
+          "id": "E1",
+          "role": "enemy",
+          "slot": [
+            0.72,
+            0.906
+          ],
+          "desired": [
+            921.45,
+            652.32
+          ],
+          "foot": [
+            921.45,
+            652.32
+          ],
+          "footUv": [
+            0.72,
+            0.906
+          ],
+          "box": [
+            848.975,
+            438.24,
+            993.925,
+            661.24
+          ],
+          "sizePx": 223.0,
+          "scale": 1.0,
+          "placed": true,
+          "grounded": true,
+          "movedPx": 0.0
+        }
+      ],
+      "drawOrder": [
+        "H1",
+        "E1"
+      ],
+      "overlaps": [],
+      "errors": []
+    },
+    {
+      "aspect": "19.5:9",
+      "ratio": 2.167,
+      "formation": "party-vs-enemies",
+      "render": "layout-19.5x9.png",
+      "viewport": [
+        1560,
+        720
+      ],
+      "fit": "contain",
+      "scale": 0.765,
+      "offset": [
+        140.34,
+        0.0
+      ],
+      "visibleUv": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "ui": [],
+      "actors": [
+        {
+          "id": "H1",
+          "role": "hero",
+          "slot": [
+            0.28,
+            0.906
+          ],
+          "desired": [
+            498.55,
+            652.32
+          ],
+          "foot": [
+            498.55,
+            652.32
+          ],
+          "footUv": [
+            0.28,
+            0.906
+          ],
+          "box": [
+            426.075,
+            438.24,
+            571.025,
+            661.24
+          ],
+          "sizePx": 223.0,
+          "scale": 1.0,
+          "placed": true,
+          "grounded": true,
+          "movedPx": 0.0
+        },
+        {
+          "id": "E1",
+          "role": "enemy",
+          "slot": [
+            0.72,
+            0.906
+          ],
+          "desired": [
+            1061.45,
+            652.32
+          ],
+          "foot": [
+            1061.45,
+            652.32
+          ],
+          "footUv": [
+            0.72,
+            0.906
+          ],
+          "box": [
+            988.975,
+            438.24,
+            1133.925,
+            661.24
+          ],
+          "sizePx": 223.0,
+          "scale": 1.0,
+          "placed": true,
+          "grounded": true,
+          "movedPx": 0.0
+        }
+      ],
+      "drawOrder": [
+        "H1",
+        "E1"
+      ],
+      "overlaps": [],
+      "errors": []
+    },
+    {
+      "aspect": "4:3",
+      "ratio": 1.333,
+      "formation": "party-vs-enemies",
+      "render": "layout-4x3.png",
+      "viewport": [
+        960,
+        720
+      ],
+      "fit": "contain",
+      "scale": 0.574,
+      "offset": [
+        0.0,
+        89.856
+      ],
+      "visibleUv": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "ui": [],
+      "actors": [
+        {
+          "id": "H1",
+          "role": "hero",
+          "slot": [
+            0.28,
+            0.906
+          ],
+          "desired": [
+            268.8,
+            579.357
+          ],
+          "foot": [
+            268.8,
+            579.357
+          ],
+          "footUv": [
+            0.28,
+            0.906
+          ],
+          "box": [
+            214.525,
+            419.037,
+            323.075,
+            586.037
+          ],
+          "sizePx": 167.0,
+          "scale": 1.0,
+          "placed": true,
+          "grounded": true,
+          "movedPx": 0.0
+        },
+        {
+          "id": "E1",
+          "role": "enemy",
+          "slot": [
+            0.72,
+            0.906
+          ],
+          "desired": [
+            691.2,
+            579.357
+          ],
+          "foot": [
+            691.2,
+            579.357
+          ],
+          "footUv": [
+            0.72,
+            0.906
+          ],
+          "box": [
+            636.925,
+            419.037,
+            745.475,
+            586.037
+          ],
+          "sizePx": 167.0,
+          "scale": 1.0,
+          "placed": true,
+          "grounded": true,
+          "movedPx": 0.0
+        }
+      ],
+      "drawOrder": [
+        "H1",
+        "E1"
+      ],
+      "overlaps": [],
+      "errors": []
+    }
+  ],
+  "warnings": []
+}

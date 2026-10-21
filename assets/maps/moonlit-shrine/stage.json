@@ -1,0 +1,79 @@
+{
+  "schema": "generate2dmap.stage.v1",
+  "plate": "source.png",
+  "sourceSize": [
+    1672,
+    941
+  ],
+  "fit": "contain",
+  "objectPosition": [
+    0.5,
+    0.5
+  ],
+  "reviewedAspectRange": [
+    1.777777,
+    1.777778
+  ],
+  "groundPolygons": [
+    [
+      [
+        0,
+        0.8
+      ],
+      [
+        1,
+        0.8
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ]
+  ],
+  "playableBand": [
+    0.8,
+    1
+  ],
+  "slots": {
+    "hero": [
+      [
+        0.28,
+        0.906
+      ]
+    ],
+    "enemy": [
+      [
+        0.72,
+        0.906
+      ]
+    ]
+  },
+  "approachPoints": [
+    [
+      0.5,
+      0.906
+    ]
+  ],
+  "protectedRegions": [
+    {
+      "id": "fight-floor",
+      "box": [
+        0,
+        0.83,
+        1,
+        1
+      ],
+      "appliesTo": [
+        "motion"
+      ]
+    }
+  ],
+  "bakedContent": {
+    "actors": false,
+    "collectibles": false
+  }
+}

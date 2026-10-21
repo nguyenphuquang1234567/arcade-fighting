@@ -1,0 +1,189 @@
+{
+  "schema": "generate2dmap.lights_qa.v1",
+  "status": "needs-visual-review",
+  "method": "extract_scene_lights extract: local contrast (luminance minus a 101 px box mean, 3x3 smoothed); peaks >= 0.12 contrast and 0.7 luminance, 0.012 of the width apart; half-peak region 0.002..0.08 of the width across; contrast-weighted centroid; colour from the halo's added colour; warm hue test.",
+  "notProven": [
+    "The detector proposes compact contrast peaks of the chosen hue; it cannot tell a lantern from a bright flower, sign, window row, wet-floor glint or reflection outside the stage's ground and water, and it misses a lamp no brighter than its surroundings. Look at lights-overlay.png, edit lights.json and re-bake it with the cookie verb.",
+    "Positions are glow centroids: a glow cut by an occluder or the plate edge pulls its centre.",
+    "Colour is the blob's hue at full brightness, radius and strength are presentation defaults; neither measures real emission or falloff.",
+    "The cookie is a screen-space tint texture, not light transport: everything under a pool gets the same tint."
+  ],
+  "checks": [
+    {
+      "id": "plate matches the stage's sourceSize",
+      "status": "pass",
+      "value": [
+        1672,
+        941
+      ],
+      "threshold": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "lights found",
+      "status": "pass",
+      "value": 6,
+      "threshold": ">= 1"
+    },
+    {
+      "id": "lights clear of the plate edge",
+      "status": "pass",
+      "value": null,
+      "threshold": "a glow cut by the edge pulls its centre inward"
+    },
+    {
+      "id": "plate is opaque",
+      "status": "pass",
+      "value": true,
+      "threshold": null
+    },
+    {
+      "id": "flicker rate",
+      "status": "skipped",
+      "value": "no flicker",
+      "threshold": null
+    }
+  ],
+  "inputs": [
+    {
+      "path": "../plate.png",
+      "sha256": "799f03aa3f33575c01d090599713a290aa68e01ef10252cd04e78a76befd9361",
+      "bytes": 2551070
+    },
+    {
+      "path": "../stage.json",
+      "sha256": "4e3d06e011af6dfdf5ba4e3051580362cb98d414e9938c67b1f3365669d3c28b",
+      "bytes": 928
+    }
+  ],
+  "outputs": [
+    {
+      "path": "lights.json",
+      "sha256": "317a8632f77cc418c7930e9ac9854e71539b5c025df68aee6fde9525432027fe",
+      "bytes": 1423
+    },
+    {
+      "path": "light-cookie.png",
+      "sha256": "8c10f97ddb72395bb85719b42e7f006c92db27c1c3756c5ccc70aae420e77a7b",
+      "bytes": 19882
+    },
+    {
+      "path": "lights-overlay.png",
+      "sha256": "b6b184d81ea7d35beb9d664dac5c7e0e6f6f4616e601524a9dbc9a48f7e33a69",
+      "bytes": 2272305
+    }
+  ],
+  "tool": {
+    "name": "extract_scene_lights",
+    "version": "0.4.0"
+  },
+  "detector": {
+    "backgroundWindowPx": 101,
+    "candidates": 91,
+    "tooSmall": 0,
+    "tooLarge": 0,
+    "offHue": 0,
+    "onGroundOrWater": 0,
+    "merged": 0,
+    "capped": 85,
+    "color": "warm",
+    "minBrightness": 0.7,
+    "minContrast": 0.12,
+    "background": 0.03,
+    "minSize": 0.002,
+    "maxSize": 0.08,
+    "merge": 0.012,
+    "maxLights": 6,
+    "radiusScale": 20.0,
+    "groundAndWaterExcluded": true
+  },
+  "lights": [
+    {
+      "id": "L1",
+      "u": 0.0317,
+      "v": 0.41975,
+      "strength": 0.76449,
+      "corePx": 189,
+      "box": [
+        46,
+        387,
+        60,
+        402
+      ],
+      "touchesEdge": false
+    },
+    {
+      "id": "L2",
+      "u": 0.94627,
+      "v": 0.51166,
+      "strength": 0.773,
+      "corePx": 137,
+      "box": [
+        1576,
+        475,
+        1588,
+        488
+      ],
+      "touchesEdge": false
+    },
+    {
+      "id": "L3",
+      "u": 0.11561,
+      "v": 0.51185,
+      "strength": 0.75391,
+      "corePx": 81,
+      "box": [
+        189,
+        476,
+        198,
+        487
+      ],
+      "touchesEdge": false
+    },
+    {
+      "id": "L4",
+      "u": 0.25176,
+      "v": 0.5378,
+      "strength": 0.73836,
+      "corePx": 55,
+      "box": [
+        417,
+        502,
+        425,
+        510
+      ],
+      "touchesEdge": false
+    },
+    {
+      "id": "L5",
+      "u": 0.82385,
+      "v": 0.58883,
+      "strength": 0.72099,
+      "corePx": 154,
+      "box": [
+        1371,
+        547,
+        1384,
+        561
+      ],
+      "touchesEdge": false
+    },
+    {
+      "id": "L6",
+      "u": 0.68331,
+      "v": 0.63293,
+      "strength": 0.73709,
+      "corePx": 49,
+      "box": [
+        1139,
+        592,
+        1147,
+        599
+      ],
+      "touchesEdge": false
+    }
+  ],
+  "rejected": []
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Moonlit Mountain Shrine",
+  "art_source": "host_image",
+  "route": "built-in image_gen",
+  "source_size": [
+    1672,
+    941
+  ],
+  "runtime_size": [
+    1280,
+    720
+  ],
+  "forge_repository": "https://github.com/0x0funky/agent-sprite-forge",
+  "forge_commit": "5324342fdfab72430f4e9604f3fe427009f8596d",
+  "tools_used": [
+    "forge_doctor",
+    "scene_layout_guide",
+    "conform_background",
+    "validate_stage",
+    "extract_scene_lights"
+  ],
+  "runtime_projection": "Phaser FIT/contain; fixed 1280x720 world",
+  "foot_baseline": 665,
+  "idle_soles_y": 652.4,
+  "original_map_preserved": true,
+  "notes": "Generated painting, existing arena movement/collision retained. No new navigation system required. QA needs-visual-review is tool status, not an automatic art pass."
+}
