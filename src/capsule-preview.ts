@@ -1,3 +1,4 @@
+import {jumpOffset} from './jump-anchor';
 import {editorFrameCount,editorSprite,editorActions,poseIndex,poseCharacter,type EditorCharacter} from './yuki-assets';
 import type {Action} from './combat';
 import sourceEdits from './capsule-overrides.json';
@@ -90,7 +91,7 @@ save.onclick=async()=>{
 };
 let visible:{key:string,x1:number,y1:number,x2:number,y2:number,r:number,index:number}[]=[];
 let dragging:{id:number,index:number,key:string,startX:number,startY:number,x:number,y:number}|undefined;
-const position=(e:PointerEvent)=>{const rect=canvas.getBoundingClientRect();const ratio=who.value==='yuki'&&action.value==='run'?(.578/.6):1;return{x:256+((e.clientX-rect.left)*512/rect.width-256)/ratio-((who.value==='an'||who.value==='yuki')&&action.value==='jump'?(who.value==='an'?17.5:46):0),y:512+((e.clientY-rect.top)*512/rect.height-512)/ratio-((who.value==='an'||who.value==='yuki')&&action.value==='jump'?17:0)}};
+const position=(e:PointerEvent)=>{const rect=canvas.getBoundingClientRect();const jumping=(who.value==='an'||who.value==='yuki')&&action.value==='jump';const o=jumping?jumpOffset(who.value,authoredFrame()):{x:0,y:0,scale:1};const ratio=who.value==='yuki'&&action.value==='run'?(.578/.6):o.scale;return{x:256+((e.clientX-rect.left)*512/rect.width-256-o.x)/ratio,y:512+((e.clientY-rect.top)*512/rect.height-512-o.y)/ratio}};
 canvas.style.touchAction='none';
 canvas.onpointerdown=e=>{
  const q=position(e);
@@ -110,7 +111,7 @@ canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.style.cursor='gra
 async function draw(){
  const token=++sequence,a=action.value as Action,c=who.value as EditorCharacter;frame.max=String(editorFrameCount(c,a));frame.value=String(Math.max(1,Math.min(editorFrameCount(c,a),Number(frame.value))));const i=Number(frame.value)-1;controls();
  const image=new Image();image.src=`/characters/${c}/${editorSprite(c,a,i)}`;await image.decode();if(token!==sequence)return;
- const wideDeath=false;const columns=wideDeath?4:image.width/512;const cellWidth=wideDeath?896:512;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,512,512);if(c==='yuki'&&a==='run'){ctx.translate(256,512);ctx.scale(.578/.6,.578/.6);ctx.translate(-256,-512);}if((c==='an'||c==='yuki')&&a==='jump')ctx.translate(c==='an'?17.5:46,17);ctx.drawImage(image,(((c==='an'||c==='yuki')&&a==='death'?i%8:i)%columns)*cellWidth+(who.value==='yuki'&&wideDeath?192:0),Math.floor(((c==='an'||c==='yuki')&&a==='death'?i%8:i)/columns)*512,512,512,0,0,512,512);
+ const wideDeath=false;const columns=wideDeath?4:image.width/512;const cellWidth=wideDeath?896:512;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,512,512);if(c==='yuki'&&a==='run'){ctx.translate(256,512);ctx.scale(.578/.6,.578/.6);ctx.translate(-256,-512);}if((c==='an'||c==='yuki')&&a==='jump'){const o=jumpOffset(c,i);ctx.translate(256+o.x,512+o.y);ctx.scale(o.scale,o.scale);ctx.translate(-256,-512);}ctx.drawImage(image,(((c==='an'||c==='yuki')&&a==='death'?i%8:i)%columns)*cellWidth+(who.value==='yuki'&&wideDeath?192:0),Math.floor(((c==='an'||c==='yuki')&&a==='death'?i%8:i)/columns)*512,512,512,0,0,512,512);
  const p=hurtboxPoses[poseCharacter(c)][a][poseIndex(c,a,authoredFrame())].map(v=>v*3.2);visible=[];
  for(const [index,offset] of capsules().entries()){const r=offset.width/2;
  // One rounded capsule remains near the torso, rather than following an extended kicking foot.

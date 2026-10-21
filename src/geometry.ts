@@ -1,3 +1,4 @@
+import {jumpOffset} from './jump-anchor';
 import {ultiEdits as anUltiEdits,ultiHurtPoints as anUltiHurtPoints} from './an-ulti-boxes';
 import {anUltiBeamHitbox} from './an-ulti';
 import {ultiBeamHitbox} from './yuki-ulti';
@@ -63,8 +64,8 @@ export function poseFrame(f: Fighter, timing?: Timing): number {
 }
 export function worldPoint(f: Fighter, p: Point): Point {
   const scale=f.collisionSkin==='yuki'&&f.action==='run'&&f.superTime===undefined?.578:SPRITE_SCALE;
-  const jump=f.collisionSkin&&f.action==='jump'&&f.superTime===undefined;const dx=jump?(f.collisionSkin==='an'?17.5:46):0,dy=jump?17:0;
-  return {x:f.x+f.face*(p.x-256+dx)*scale,y:SPRITE_BASELINE+f.y+(p.y-512+dy)*scale};
+  const jump=f.collisionSkin&&f.action==='jump'&&f.superTime===undefined;const offset=jump?jumpOffset(f.collisionSkin!,poseFrame(f)):{x:0,y:0,scale:1},dx=offset.x,dy=offset.y;
+  return {x:f.x+f.face*((p.x-256)*offset.scale+dx)*scale,y:SPRITE_BASELINE+f.y+((p.y-512)*offset.scale+dy)*scale};
 }
 export function getHurtboxes(f:Fighter,timing?:Timing):HurtPolygon[]{
  if(f.hp<=0||f.action==='death')return [];

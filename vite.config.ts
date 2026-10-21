@@ -32,4 +32,4 @@ function capsuleWriter():Plugin{let writing:Promise<void>=Promise.resolve();retu
   }catch(e){reply(400,{error:e instanceof Error?e.message:String(e)})}
  });
 }}}
-export default defineConfig({publicDir:'assets',plugins:[capsuleWriter()],build:{rollupOptions:{input:{anUlti:'an-ulti-preview.html',ulti:'ulti-preview.html',game:'index.html',capsule:'capsule-preview.html',hitboxes:'hitbox-editor.html',super:'super-preview.html',anSuper:'an-super-preview.html',anSlash:'an-slash-preview.html',yukiSlash:'yuki-slash-preview.html'}}}});
+export default defineConfig({publicDir:'assets',plugins:[capsuleWriter()],build:{rollupOptions:{input:{yukiBlock:'yuki-block-preview.html',anUlti:'an-ulti-preview.html',ulti:'ulti-preview.html',game:'index.html',capsule:'capsule-preview.html',hitboxes:'hitbox-editor.html',super:'super-preview.html',anSuper:'an-super-preview.html',anSlash:'an-slash-preview.html',yukiSlash:'yuki-slash-preview.html'}}}});
