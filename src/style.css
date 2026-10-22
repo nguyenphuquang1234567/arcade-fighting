@@ -105,3 +105,9 @@
 #touch-controls #touch-block{width:96px;min-height:42px;border:1px solid #d8c298a6;border-radius:8px;background:#162939e8;color:#f0dcba;font-size:11px;letter-spacing:1.2px;font-weight:700;touch-action:none;opacity:.9}
 #touch-controls #touch-block.held{background:#e7c58f;color:#102331;box-shadow:0 0 13px #e7c58f66;border-color:#fff1cc}
 @media(orientation:landscape) and (max-height:600px) and (max-width:1100px),(orientation:landscape) and (pointer:coarse){.touch-movement{gap:7px}#touch-controls #touch-block{width:88px;min-height:40px;font-size:10px}}
+
+.block-meter{position:relative;display:flex;align-items:center;justify-content:space-between;isolation:isolate;height:19px;margin-top:5px;padding:0 6px;background:#081d2adf;border:1px solid #8eb8e077;border-radius:2px;overflow:hidden;color:#edf5ff;font-size:8px;line-height:1;letter-spacing:.8px}
+.block-meter i{position:absolute;inset:0 auto 0 0;z-index:-1;width:100%;background:linear-gradient(90deg,#365a7c,#729cbd);transition:width .1s linear}
+.block-meter strong{font-size:9px;letter-spacing:0;font-variant-numeric:tabular-nums}.block-meter.blocking{border-color:#e7c58f}.block-meter.blocking i{background:linear-gradient(90deg,#8c683d,#c5a06a)}.block-meter.depleted{border-color:#e49b7a;color:#ffd2bc}.block-meter.depleted strong{font-size:8px}
+@media(orientation:landscape) and (max-height:600px) and (max-width:1100px),(orientation:landscape) and (pointer:coarse){.block-meter{height:16px;margin-top:4px;font-size:7px}.block-meter strong,.block-meter.depleted strong{font-size:7px}}
+@media(orientation:portrait) and (max-width:750px){.block-meter{height:13px;margin-top:3px;font-size:6px;padding:0 3px}.block-meter strong,.block-meter.depleted strong{font-size:6px}}
