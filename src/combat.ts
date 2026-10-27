@@ -43,7 +43,7 @@ export class Combat{
  // Snapshot contacts so simultaneous strikes can trade rather than favor index 0.
  const contacts=this.fighters.flatMap((f,i)=>{
    const enemy=this.fighters[1-i];
-   if(f.ultiTime!==undefined){if(enemy.hp<=0||f.ultiTime-(f.ultiLastHitTime??0)<.2-1e-9||f.ultiTime>=4)return [];const contact=polygonCollision(getHitboxes(f),enemy,attacks[enemy.action]);return contact?[{f,enemy,attack:{...attacks.sword_attack!,damage:4},special:undefined,contact,blocked:enemy.guard,direction:f.face}]:[];}
+   if(f.ultiTime!==undefined){if(enemy.hp<=0||f.ultiTime-(f.ultiLastHitTime??0)<.2-1e-9||f.ultiTime>=4)return [];const contact=polygonCollision(getHitboxes(f),enemy,attacks[enemy.action]);return contact?[{f,enemy,attack:{...attacks.sword_attack!,damage:3},special:undefined,contact,blocked:enemy.guard,direction:f.face}]:[];}
    const special=f.collisionSkin&&f.superTime!==undefined?(f.collisionSkin==='an'?anStrike(f.superTime):superStrike(f.superTime)):undefined;
    if(enemy.hp<=0||(f.superTime!==undefined?(!special||f.superHitStages?.includes(special.stage)):f.hit))return [];
    const contact=polygonCollision(getHitboxes(f,attacks[f.action]),enemy,attacks[enemy.action]);
