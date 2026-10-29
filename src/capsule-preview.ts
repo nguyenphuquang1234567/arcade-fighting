@@ -17,6 +17,13 @@ const upgrade=(list:any[])=>list.length&&list.every(v=>v.part===undefined)?[...l
 const normalize=(data:Record<string,unknown>):CapsuleEdits=>Object.fromEntries(Object.entries(data).map(([k,v])=>[k,upgrade(Array.isArray(v)?v:[v])])) as CapsuleEdits;
 let edits:CapsuleEdits=normalize(structuredClone(sourceEdits));
 try{const draft=JSON.parse(localStorage.getItem(storageKey)??'{}');if(!validateCapsules(draft))edits={...edits,...normalize(draft)}}catch{}
+// Import only the replaced An punch; preserve all other poses and back up drafts.
+const anPunchImportKey=storageKey+'-an-punch-refined-ten-v1';
+if(!localStorage.getItem(anPunchImportKey)){
+ localStorage.setItem(anPunchImportKey+'-backup',localStorage.getItem(storageKey)??'{}');
+ for(const [key,value] of Object.entries(normalize(sourceEdits)))if(key.startsWith('an/attack/'))edits[key]=structuredClone(value);
+ localStorage.setItem(storageKey,JSON.stringify(edits));localStorage.setItem(anPunchImportKey,'done');
+}
 // Preserve existing browser edits while migrating run to ten independent frames.
 const runMigrationKey=storageKey+'-run-ten-independent-v1';
 if(!localStorage.getItem(runMigrationKey)){

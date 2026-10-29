@@ -7,6 +7,13 @@ const el=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
 const who=el<HTMLSelectElement>('who'),action=el<HTMLSelectElement>('action'),frame=el<HTMLInputElement>('frame'),picker=el<HTMLSelectElement>('box'),canvas=el<HTMLCanvasElement>('canvas'),ctx=canvas.getContext('2d')!,storage='dojo-hitbox-draft-v1';
 let edits:HitEdits=structuredClone(source),selected=0,sequence=0;
 try{const local=JSON.parse(localStorage.getItem(storage)??'{}');if(!validateHitboxes(local))edits={...edits,...local}}catch{}
+// Import boxes for the replaced An punch once, retaining a recoverable draft.
+const anPunchImportKey=storage+'-an-punch-refined-ten-v1';
+if(!localStorage.getItem(anPunchImportKey)){
+ localStorage.setItem(anPunchImportKey+'-backup',localStorage.getItem(storage)??'{}');
+ for(const [key,value] of Object.entries(source))if(key.startsWith('an/attack/'))edits[key]=structuredClone(value);
+ localStorage.setItem(storage,JSON.stringify(edits));localStorage.setItem(anPunchImportKey,'done');
+}
 const requestedCharacter=new URLSearchParams(location.search).get('character');
 if(requestedCharacter&&Array.from(who.options).some(o=>o.value===requestedCharacter))who.value=requestedCharacter;
 for(const a of strikes)action.add(new Option(a,a));

@@ -103,14 +103,7 @@
       "angle": -10
     }
   ],
-  "an/attack/5": [
-    {
-      "x": 300,
-      "y": 209,
-      "width": 145,
-      "height": 45
-    }
-  ],
+  "an/attack/5": [],
   "an/ground_slide/0": [
     {
       "x": 233,
@@ -164,14 +157,7 @@
       "angle": -10
     }
   ],
-  "an/attack/4": [
-    {
-      "x": 300,
-      "y": 195,
-      "width": 146,
-      "height": 45
-    }
-  ],
+  "an/attack/4": [],
   "yuki/attack/4": [
     {
       "x": 290,
@@ -242,26 +228,26 @@
   ],
   "an/attack/6": [
     {
-      "x": 300.08571428571423,
-      "y": 199.00000000000003,
-      "width": 149,
-      "height": 45
+      "x": 308,
+      "y": 202,
+      "width": 144,
+      "height": 30
     }
   ],
   "an/attack/7": [
     {
-      "x": 300,
-      "y": 199,
-      "width": 149,
-      "height": 45
+      "x": 313,
+      "y": 202,
+      "width": 147,
+      "height": 31
     }
   ],
   "an/attack/8": [
     {
-      "x": 290,
-      "y": 192,
-      "width": 152,
-      "height": 45
+      "x": 312,
+      "y": 203,
+      "width": 140,
+      "height": 31
     }
   ],
   "yuki/attack/6": [
@@ -537,5 +523,10 @@
       "width": 110,
       "height": 55
     }
-  ]
+  ],
+  "an/attack/0": [],
+  "an/attack/1": [],
+  "an/attack/2": [],
+  "an/attack/3": [],
+  "an/attack/9": []
 }
